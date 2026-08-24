@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Brisabel
 
-## Getting Started
+Aplicacion web creada con Next.js, TypeScript, Tailwind CSS y Prisma.
 
-First, run the development server:
+## Stack inicial
+
+- Next.js con App Router
+- TypeScript
+- Tailwind CSS
+- Prisma ORM
+- MySQL para Hostinger
+
+## Comandos
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run lint
+npm run prisma:generate
+npm run prisma:migrate
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables de entorno
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copia `.env.example` a `.env` y reemplaza `DATABASE_URL` con los datos de MySQL de Hostinger.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Formato de Hostinger:
 
-## Learn More
+```env
+DATABASE_URL="mysql://USUARIO:CONTRASENA@HOST:3306/BASE_DE_DATOS?connection_limit=5"
+```
 
-To learn more about Next.js, take a look at the following resources:
+En este proyecto:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+DATABASE_URL="mysql://u605057087_angel:TU_PASSWORD@TU_HOST_MYSQL:3306/u605057087_brisabel?connection_limit=5"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Si la app corre dentro de Hostinger, el host puede ser `localhost` o `127.0.0.1`.
+Para correr migraciones desde tu computadora, habilita Remote MySQL en Hostinger y usa el hostname remoto que aparece en hPanel.
