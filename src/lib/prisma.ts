@@ -16,7 +16,7 @@ export function getPrisma() {
     throw new Error("DATABASE_URL no esta configurada.");
   }
 
-  const adapter = new PrismaMariaDb(databaseUrl);
+  const adapter = new PrismaMariaDb(databaseUrl.replace(/^mysql:/, "mariadb:"));
   const prisma = new PrismaClient({ adapter });
 
   if (process.env.NODE_ENV !== "production") {

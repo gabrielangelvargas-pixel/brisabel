@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 
 import { appConfig } from "@/config/app";
+import { getPrisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 const categoryStyles = {
   "acero-quirurgico": {
@@ -105,7 +108,40 @@ const benefits = [
   { label: "Envios coordinados", icon: Truck },
 ];
 
-export default function Home() {
+async function getHomeCategories(): Promise<HomeCategory[]> {
+  try {
+    const prisma = getPrisma();
+
+    return await prisma.categoria.findMany({
+      where: {
+        parentId: null,
+      },
+      orderBy: [{ orden: "asc" }, { nombre: "asc" }],
+      include: {
+        children: {
+          orderBy: [{ orden: "asc" }, { nombre: "asc" }],
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
+        _count: {
+          select: {
+            children: true,
+            productos: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("No se pudieron cargar las categorias", error);
+    return homeCategories;
+  }
+}
+
+export default async function Home() {
+  const categories = await getHomeCategories();
+
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#1f2320]">
       <header className="border-b border-[#e6ded3] bg-[#fbfaf8]/95">
@@ -213,7 +249,7 @@ export default function Home() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {homeCategories.map((category) => {
+          {categories.map((category) => {
             const style = categoryStyles[category.slug as keyof typeof categoryStyles];
             const Icon = style?.icon ?? Gift;
             const description = category.descripcion ?? style?.summary ?? "Categoria lista para sumar productos.";
