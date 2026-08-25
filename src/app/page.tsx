@@ -53,47 +53,6 @@ type HomeCategory = {
   };
 };
 
-const homeCategories: HomeCategory[] = [
-  {
-    id: "plata-900-925",
-    nombre: "Plata 900 / 925",
-    slug: "plata-900-925",
-    descripcion: "Joyas en plata con brillo clasico para ocasiones especiales.",
-    children: [
-      { id: "plata-900-925-aros", nombre: "Aros" },
-      { id: "plata-900-925-abridores", nombre: "Abridores" },
-    ],
-    _count: { children: 2, productos: 0 },
-  },
-  {
-    id: "acero-quirurgico",
-    nombre: "Acero Quirurgico",
-    slug: "acero-quirurgico",
-    descripcion: "Piezas resistentes, faciles de combinar y pensadas para uso diario.",
-    children: [],
-    _count: { children: 0, productos: 0 },
-  },
-  {
-    id: "marroquineria",
-    nombre: "Marroquineria",
-    slug: "marroquineria",
-    descripcion: "Carteras, billeteras y complementos para organizar la rutina.",
-    children: [
-      { id: "marroquineria-billeteras", nombre: "Billeteras" },
-      { id: "marroquineria-mochilas", nombre: "Mochilas" },
-    ],
-    _count: { children: 2, productos: 0 },
-  },
-  {
-    id: "electronica",
-    nombre: "Electronica",
-    slug: "electronica",
-    descripcion: "Accesorios practicos y tecnologia compacta para regalar o renovar.",
-    children: [],
-    _count: { children: 0, productos: 0 },
-  },
-];
-
 const featuredProducts = [
   "Sets de regalo",
   "Accesorios de moda",
@@ -108,11 +67,14 @@ const benefits = [
   { label: "Envios coordinados", icon: Truck },
 ];
 
-async function getHomeCategories(): Promise<HomeCategory[]> {
+async function getHomeCategories(): Promise<{
+  categories: HomeCategory[];
+  hasError: boolean;
+}> {
   try {
     const prisma = getPrisma();
 
-    return await prisma.categoria.findMany({
+    const categories = await prisma.categoria.findMany({
       where: {
         parentId: null,
       },
@@ -133,14 +95,16 @@ async function getHomeCategories(): Promise<HomeCategory[]> {
         },
       },
     });
+
+    return { categories, hasError: false };
   } catch (error) {
     console.error("No se pudieron cargar las categorias", error);
-    return homeCategories;
+    return { categories: [], hasError: true };
   }
 }
 
 export default async function Home() {
-  const categories = await getHomeCategories();
+  const { categories, hasError } = await getHomeCategories();
 
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#1f2320]">
@@ -248,8 +212,9 @@ export default async function Home() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => {
+        {categories.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {categories.map((category) => {
             const style = categoryStyles[category.slug as keyof typeof categoryStyles];
             const Icon = style?.icon ?? Gift;
             const description = category.descripcion ?? style?.summary ?? "Categoria lista para sumar productos.";
@@ -283,8 +248,15 @@ export default async function Home() {
                 ) : null}
               </article>
             );
-          })}
-        </div>
+            })}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-[#e1d8cc] bg-white p-6 text-sm leading-6 text-[#69625b] shadow-sm">
+            {hasError
+              ? "No se pudieron cargar las categorias desde la base de datos."
+              : "Todavia no hay categorias cargadas."}
+          </div>
+        )}
       </section>
 
       <section className="bg-[#1f2320] px-5 py-14 text-white sm:px-8 lg:px-10" id="destacados">
