@@ -22,12 +22,12 @@ enum UserRole {
 }
 
 model Categoria {
-  id          String      @id @default(cuid())
+  id          String      @id @default(cuid()) @db.VarChar(40)
   nombre      String
   slug        String      @unique
   descripcion String?     @db.VarChar(500)
   orden       Int         @default(0)
-  parentId    String?
+  parentId    String?     @db.VarChar(40)
   parent      Categoria?  @relation("CategoriaJerarquia", fields: [parentId], references: [id], onDelete: SetNull)
   children    Categoria[] @relation("CategoriaJerarquia")
   productos   Producto[]
@@ -45,7 +45,7 @@ model Producto {
   precioCosto Decimal   @db.Decimal(12, 2)
   precioVenta Decimal   @db.Decimal(12, 2)
   imagen      String?   @db.VarChar(500)
-  categoriaId String
+  categoriaId String    @db.VarChar(40)
   categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
   activo      Boolean   @default(true)
   createdAt   DateTime  @default(now())
