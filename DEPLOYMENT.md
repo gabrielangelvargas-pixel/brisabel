@@ -18,7 +18,7 @@ Configura estas variables en Hostinger durante el despliegue:
 
 ```env
 DATABASE_URL="mysql://u605057087_angel:TU_PASSWORD@HOST_MYSQL:3306/u605057087_brisabel?connection_limit=5"
-NEXT_PUBLIC_APP_URL="https://TU_DOMINIO"
+NEXT_PUBLIC_APP_URL="https://lightcoral-stingray-549999.hostingersite.com"
 ```
 
 Notas:
@@ -26,6 +26,7 @@ Notas:
 - Para correr la app dentro de Hostinger, el host de MySQL puede ser `localhost` o `127.0.0.1` si Hostinger lo indica para esa base.
 - Para migrar desde tu computadora, usa el host remoto de MySQL y habilita Remote MySQL en hPanel.
 - No subas `.env` a GitHub. Usa `.env.example` como referencia.
+- Cuando conectes un dominio propio, cambia `NEXT_PUBLIC_APP_URL` por la URL definitiva con HTTPS.
 
 ## Migraciones
 

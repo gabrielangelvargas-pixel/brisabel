@@ -23,6 +23,7 @@ npm run prisma:migrate
 ## Variables de entorno
 
 Copia `.env.example` a `.env` y reemplaza `DATABASE_URL` con los datos de MySQL de Hostinger.
+Para produccion, `NEXT_PUBLIC_APP_URL` debe apuntar a la URL publica de la app.
 
 Formato de Hostinger:
 
