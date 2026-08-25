@@ -7,16 +7,16 @@ import { createSession } from "@/lib/session";
 import { verifyPassword } from "@/lib/password";
 
 export async function loginAction(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const dni = String(formData.get("dni") ?? "").replace(/\D/g, "");
   const password = String(formData.get("password") ?? "");
 
-  if (!email || !password) {
+  if (!dni || !password) {
     redirect("/admin/login?error=missing");
   }
 
   const usuario = await getPrisma().usuario.findUnique({
     where: {
-      email,
+      dni,
     },
   });
 

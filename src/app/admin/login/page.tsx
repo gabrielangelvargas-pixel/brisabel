@@ -28,12 +28,15 @@ export default async function LoginPage({
 
         <form action={loginAction} className="mt-6 grid gap-4">
           <label className="grid gap-2 text-sm font-medium">
-            Email
+            DNI
             <input
+              autoComplete="username"
               className="h-11 rounded-md border border-[#d8cbbd] px-3 outline-none transition focus:border-[#7f4f3a]"
-              name="email"
+              inputMode="numeric"
+              name="dni"
+              pattern="[0-9. -]+"
               required
-              type="email"
+              type="text"
             />
           </label>
           <label className="grid gap-2 text-sm font-medium">

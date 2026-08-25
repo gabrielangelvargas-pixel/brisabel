@@ -17,12 +17,13 @@ async function hashPassword(password) {
   return `${salt}:${Buffer.from(key).toString("hex")}`;
 }
 
-const email = getArg("email") ?? process.env.ADMIN_EMAIL;
+const dni = (getArg("dni") ?? process.env.ADMIN_DNI)?.replace(/\D/g, "");
+const email = getArg("email") ?? process.env.ADMIN_EMAIL ?? null;
 const password = getArg("password") ?? process.env.ADMIN_PASSWORD;
 const nombre = getArg("name") ?? process.env.ADMIN_NAME ?? "Administrador";
 
-if (!email || !password) {
-  console.error("Uso: npm run admin:create -- --email=admin@brisabel.com --password=TU_PASSWORD --name=Administrador");
+if (!dni || !password) {
+  console.error("Uso: npm run admin:create -- --dni=12345678 --password=TU_PASSWORD --name=Administrador");
   process.exit(1);
 }
 
@@ -36,13 +37,13 @@ const conn = await pool.getConnection();
 const passwordHash = await hashPassword(password);
 
 await conn.query(
-  `INSERT INTO Usuario (id, nombre, email, passwordHash, rol, activo, createdAt, updatedAt)
-   VALUES (UUID(), ?, ?, ?, 'ADMIN', true, NOW(3), NOW(3))
-   ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), passwordHash = VALUES(passwordHash), rol = 'ADMIN', activo = true, updatedAt = NOW(3)`,
-  [nombre, email, passwordHash],
+  `INSERT INTO Usuario (id, nombre, dni, email, passwordHash, rol, activo, createdAt, updatedAt)
+   VALUES (UUID(), ?, ?, ?, ?, 'ADMIN', true, NOW(3), NOW(3))
+   ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), email = VALUES(email), passwordHash = VALUES(passwordHash), rol = 'ADMIN', activo = true, updatedAt = NOW(3)`,
+  [nombre, dni, email, passwordHash],
 );
 
 conn.release();
 await pool.end();
 
-console.log(`Usuario administrador listo: ${email}`);
+console.log(`Usuario administrador listo para DNI: ${dni}`);

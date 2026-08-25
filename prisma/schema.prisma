@@ -10,7 +10,8 @@ datasource db {
 model Usuario {
   id           String          @id @default(cuid()) @db.VarChar(40)
   nombre       String          @db.VarChar(120)
-  email        String          @unique @db.VarChar(160)
+  dni          String          @unique @db.VarChar(20)
+  email        String?         @unique @db.VarChar(160)
   passwordHash String          @db.VarChar(255)
   rol          RolUsuario      @default(ADMIN)
   activo       Boolean         @default(true)
