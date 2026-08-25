@@ -38,6 +38,62 @@ const categoryStyles = {
   },
 };
 
+type HomeCategory = {
+  id: string;
+  nombre: string;
+  slug: string;
+  descripcion: string | null;
+  children: Array<{
+    id: string;
+    nombre: string;
+  }>;
+  _count: {
+    children: number;
+    productos: number;
+  };
+};
+
+const fallbackCategories: HomeCategory[] = [
+  {
+    id: "plata-900-925",
+    nombre: "Plata 900 / 925",
+    slug: "plata-900-925",
+    descripcion: "Joyas en plata con brillo clasico para ocasiones especiales.",
+    children: [
+      { id: "plata-900-925-aros", nombre: "Aros" },
+      { id: "plata-900-925-abridores", nombre: "Abridores" },
+    ],
+    _count: { children: 2, productos: 0 },
+  },
+  {
+    id: "acero-quirurgico",
+    nombre: "Acero Quirurgico",
+    slug: "acero-quirurgico",
+    descripcion: "Piezas resistentes, faciles de combinar y pensadas para uso diario.",
+    children: [],
+    _count: { children: 0, productos: 0 },
+  },
+  {
+    id: "marroquineria",
+    nombre: "Marroquineria",
+    slug: "marroquineria",
+    descripcion: "Carteras, billeteras y complementos para organizar la rutina.",
+    children: [
+      { id: "marroquineria-billeteras", nombre: "Billeteras" },
+      { id: "marroquineria-mochilas", nombre: "Mochilas" },
+    ],
+    _count: { children: 2, productos: 0 },
+  },
+  {
+    id: "electronica",
+    nombre: "Electronica",
+    slug: "electronica",
+    descripcion: "Accesorios practicos y tecnologia compacta para regalar o renovar.",
+    children: [],
+    _count: { children: 0, productos: 0 },
+  },
+];
+
 const featuredProducts = [
   "Sets de regalo",
   "Accesorios de moda",
@@ -52,28 +108,37 @@ const benefits = [
   { label: "Envios coordinados", icon: Truck },
 ];
 
+async function getHomeCategories(): Promise<HomeCategory[]> {
+  try {
+    return await prisma.categoria.findMany({
+      where: {
+        parentId: null,
+      },
+      orderBy: [{ orden: "asc" }, { nombre: "asc" }],
+      include: {
+        children: {
+          orderBy: [{ orden: "asc" }, { nombre: "asc" }],
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
+        _count: {
+          select: {
+            children: true,
+            productos: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error("No se pudieron cargar las categorias", error);
+    return fallbackCategories;
+  }
+}
+
 export default async function Home() {
-  const categories = await prisma.categoria.findMany({
-    where: {
-      parentId: null,
-    },
-    orderBy: [{ orden: "asc" }, { nombre: "asc" }],
-    include: {
-      children: {
-        orderBy: [{ orden: "asc" }, { nombre: "asc" }],
-        select: {
-          id: true,
-          nombre: true,
-        },
-      },
-      _count: {
-        select: {
-          children: true,
-          productos: true,
-        },
-      },
-    },
-  });
+  const categories = await getHomeCategories();
 
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#1f2320]">
