@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
   ArrowRight,
   Gem,
@@ -14,13 +15,28 @@ import {
 } from "lucide-react";
 
 import { appConfig } from "@/config/app";
+import { prisma } from "@/lib/prisma";
 
-const categories = [
-  { name: "Bijouterie", description: "Aros, collares, pulseras y detalles para todos los dias.", icon: Gem },
-  { name: "Marroquineria", description: "Carteras, billeteras, neceseres y accesorios practicos.", icon: ShoppingBag },
-  { name: "Cosmetica", description: "Belleza, cuidado personal y pequenos favoritos para regalar.", icon: Sparkles },
-  { name: "Electronica", description: "Accesorios utiles, tecnologia compacta y novedades.", icon: Headphones },
-];
+export const dynamic = "force-dynamic";
+
+const categoryStyles = {
+  "acero-quirurgico": {
+    icon: Sparkles,
+    summary: "Piezas resistentes, faciles de combinar y pensadas para uso diario.",
+  },
+  electronica: {
+    icon: Headphones,
+    summary: "Accesorios practicos y tecnologia compacta para regalar o renovar.",
+  },
+  marroquineria: {
+    icon: ShoppingBag,
+    summary: "Carteras, billeteras y complementos para organizar la rutina.",
+  },
+  "plata-900-925": {
+    icon: Gem,
+    summary: "Joyas en plata con brillo clasico para ocasiones especiales.",
+  },
+};
 
 const featuredProducts = [
   "Sets de regalo",
@@ -36,17 +52,39 @@ const benefits = [
   { label: "Envios coordinados", icon: Truck },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const categories = await prisma.categoria.findMany({
+    where: {
+      parentId: null,
+    },
+    orderBy: [{ orden: "asc" }, { nombre: "asc" }],
+    include: {
+      children: {
+        orderBy: [{ orden: "asc" }, { nombre: "asc" }],
+        select: {
+          id: true,
+          nombre: true,
+        },
+      },
+      _count: {
+        select: {
+          children: true,
+          productos: true,
+        },
+      },
+    },
+  });
+
   return (
     <main className="min-h-screen bg-[#fbfaf8] text-[#1f2320]">
       <header className="border-b border-[#e6ded3] bg-[#fbfaf8]/95">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-10">
-          <a className="flex items-center gap-3" href={appConfig.url}>
+          <Link className="flex items-center gap-3" href="/">
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#7f4f3a] text-white">
               <Heart className="h-5 w-5" />
             </span>
             <span className="text-xl font-semibold tracking-wide">{appConfig.name}</span>
-          </a>
+          </Link>
           <div className="hidden items-center gap-7 text-sm font-medium text-[#5f5a55] md:flex">
             <a className="transition hover:text-[#7f4f3a]" href="#categorias">
               Categorias
@@ -145,20 +183,37 @@ export default function Home() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => {
-            const Icon = category.icon;
+            const style = categoryStyles[category.slug as keyof typeof categoryStyles];
+            const Icon = style?.icon ?? Gift;
+            const description = category.descripcion ?? style?.summary ?? "Categoria lista para sumar productos.";
 
             return (
               <article
                 className="rounded-lg border border-[#e1d8cc] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-[#c7a18a]"
-                key={category.name}
+                key={category.id}
               >
                 <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md bg-[#f2e4db] text-[#7f4f3a]">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="text-lg font-semibold">{category.name}</h3>
+                <h3 className="text-lg font-semibold">{category.nombre}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#69625b]">
-                  {category.description}
+                  {description}
                 </p>
+                <div className="mt-5 flex gap-2 text-xs font-semibold text-[#7f4f3a]">
+                  <span>{category._count.children} subcategorias</span>
+                  <span aria-hidden="true">/</span>
+                  <span>{category._count.productos} productos</span>
+                </div>
+                {category.children.length > 0 ? (
+                  <ul className="mt-4 grid gap-2 border-t border-[#eee5dc] pt-4 text-sm text-[#504a44]">
+                    {category.children.map((child) => (
+                      <li className="flex items-center gap-2" key={child.id}>
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#c7a18a]" />
+                        {child.nombre}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
               </article>
             );
           })}
