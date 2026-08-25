@@ -7,18 +7,33 @@ datasource db {
   provider = "mysql"
 }
 
-model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  role      UserRole @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Usuario {
+  id           String          @id @default(cuid()) @db.VarChar(40)
+  nombre       String          @db.VarChar(120)
+  email        String          @unique @db.VarChar(160)
+  passwordHash String          @db.VarChar(255)
+  rol          RolUsuario      @default(ADMIN)
+  activo       Boolean         @default(true)
+  sesiones     SesionUsuario[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 }
 
-enum UserRole {
+model SesionUsuario {
+  id        String   @id @default(cuid()) @db.VarChar(40)
+  tokenHash String   @unique @db.VarChar(64)
+  usuarioId String   @db.VarChar(40)
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([usuarioId])
+  @@index([expiresAt])
+}
+
+enum RolUsuario {
   ADMIN
-  CUSTOMER
+  OPERADOR
 }
 
 model Categoria {
