@@ -19,9 +19,7 @@ export function getPrisma() {
   const adapter = new PrismaMariaDb(databaseUrl.replace(/^mysql:/, "mariadb:"));
   const prisma = new PrismaClient({ adapter });
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = prisma;
-  }
+  globalForPrisma.prisma = prisma;
 
   return prisma;
 }
