@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { appConfig } from "@/config/app";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -110,6 +110,8 @@ const benefits = [
 
 async function getHomeCategories(): Promise<HomeCategory[]> {
   try {
+    const prisma = getPrisma();
+
     return await prisma.categoria.findMany({
       where: {
         parentId: null,
