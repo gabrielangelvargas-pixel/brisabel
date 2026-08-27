@@ -8,6 +8,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const imageHeaders = {
+  "Cache-Control": "public, max-age=3600",
+  "Content-Type": "image/webp",
+};
+
 async function readCategoryImage(fileName: string) {
   try {
     return await readFile(categoryImagePath(fileName));
@@ -16,13 +21,44 @@ async function readCategoryImage(fileName: string) {
   }
 }
 
+async function getSafeFileName(context: RouteContext<"/media/categorias/[fileName]">) {
+  const { fileName } = await context.params;
+
+  if (!isSafeWebpFileName(fileName)) {
+    return null;
+  }
+
+  return fileName;
+}
+
+export async function HEAD(
+  _request: Request,
+  context: RouteContext<"/media/categorias/[fileName]">,
+) {
+  const fileName = await getSafeFileName(context);
+
+  if (!fileName) {
+    return new Response(null, { status: 404 });
+  }
+
+  try {
+    await readCategoryImage(fileName);
+
+    return new Response(null, {
+      headers: imageHeaders,
+    });
+  } catch {
+    return new Response(null, { status: 404 });
+  }
+}
+
 export async function GET(
   _request: Request,
   context: RouteContext<"/media/categorias/[fileName]">,
 ) {
-  const { fileName } = await context.params;
+  const fileName = await getSafeFileName(context);
 
-  if (!isSafeWebpFileName(fileName)) {
+  if (!fileName) {
     return new Response(null, { status: 404 });
   }
 
@@ -30,10 +66,7 @@ export async function GET(
     const image = await readCategoryImage(fileName);
 
     return new Response(image, {
-      headers: {
-        "Cache-Control": "public, max-age=3600",
-        "Content-Type": "image/webp",
-      },
+      headers: imageHeaders,
     });
   } catch {
     return new Response(null, { status: 404 });
