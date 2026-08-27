@@ -1,5 +1,7 @@
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 
+import { appConfig } from "@/config/app";
 import {
   categoryImagePath,
   isSafeWebpFileName,
@@ -17,7 +19,13 @@ async function readCategoryImage(fileName: string) {
   try {
     return await readFile(categoryImagePath(fileName));
   } catch {
-    return readFile(legacyCategoryImagePath(fileName));
+    try {
+      return await readFile(legacyCategoryImagePath(fileName));
+    } catch {
+      return readFile(
+        path.join(process.cwd(), "public", appConfig.image.replace(/^\//, "")),
+      );
+    }
   }
 }
 
