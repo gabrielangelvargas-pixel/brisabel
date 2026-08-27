@@ -1,7 +1,6 @@
 "use server";
 
 import { mkdir } from "node:fs/promises";
-import path from "node:path";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -10,6 +9,7 @@ import { z } from "zod";
 
 import { getPrisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
+import { categoryImagePath, categoryUploadsDir } from "@/lib/uploads";
 
 const categorySchema = z.object({
   nombre: z.string().trim().min(2).max(120),
@@ -26,7 +26,6 @@ const categorySchema = z.object({
 
 const categoryIdSchema = z.string().trim().min(1).max(40);
 const maxImageSizeBytes = 8 * 1024 * 1024;
-const categoryImageDir = path.join(process.cwd(), "public", "images", "categorias");
 
 function redirectWithError(error: string): never {
   redirect(`/admin/categorias?error=${error}`);
@@ -60,10 +59,10 @@ async function saveCategoryImage(formData: FormData, slug: string) {
 
   const buffer = Buffer.from(await image.arrayBuffer());
   const fileName = `${slug}.webp`;
-  const filePath = path.join(categoryImageDir, fileName);
+  const filePath = categoryImagePath(fileName);
 
   try {
-    await mkdir(categoryImageDir, { recursive: true });
+    await mkdir(categoryUploadsDir, { recursive: true });
     await sharp(buffer)
       .rotate()
       .resize(1200, 1200, {

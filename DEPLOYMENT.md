@@ -18,7 +18,8 @@ Configura estas variables en Hostinger durante el despliegue:
 
 ```env
 DATABASE_URL="mysql://u605057087_angel:TU_PASSWORD@HOST_MYSQL:3306/u605057087_brisabel?connection_limit=5"
-NEXT_PUBLIC_APP_URL="https://lightcoral-stingray-549999.hostingersite.com"
+NEXT_PUBLIC_APP_URL="https://brisabel.com.ar"
+BRISABEL_UPLOADS_DIR="/home/u605057087/domains/brisabel.com.ar/imagenes"
 ```
 
 Notas:
@@ -27,6 +28,7 @@ Notas:
 - Para migrar desde tu computadora, usa el host remoto de MySQL y habilita Remote MySQL en hPanel.
 - No subas `.env` a GitHub. Usa `.env.example` como referencia.
 - Cuando conectes un dominio propio, cambia `NEXT_PUBLIC_APP_URL` por la URL definitiva con HTTPS.
+- `BRISABEL_UPLOADS_DIR` debe apuntar a una carpeta persistente fuera del directorio del deploy. Crea esa carpeta en Hostinger si no existe y verifica que la app Node.js tenga permisos de escritura.
 
 ## Migraciones
 

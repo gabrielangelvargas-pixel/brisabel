@@ -274,7 +274,7 @@ export default async function AdminCategoriasPage({
                               alt=""
                               className="h-14 w-14 shrink-0 rounded-md border border-[#eee4da] object-cover"
                               height={56}
-                              src={`/images/categorias/${category.imagen}`}
+                              src={`/media/categorias/${category.imagen}`}
                               width={56}
                             />
                           ) : null}
