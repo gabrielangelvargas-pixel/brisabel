@@ -220,8 +220,9 @@ export default async function Home() {
             const description = category.descripcion ?? style?.summary ?? "Categoria lista para sumar productos.";
 
             return (
-              <article
+              <Link
                 className="rounded-lg border border-[#e1d8cc] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-[#c7a18a]"
+                href={`/categorias/${category.slug}`}
                 key={category.id}
               >
                 <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md bg-[#f2e4db] text-[#7f4f3a]">
@@ -246,7 +247,7 @@ export default async function Home() {
                     ))}
                   </ul>
                 ) : null}
-              </article>
+              </Link>
             );
             })}
           </div>
