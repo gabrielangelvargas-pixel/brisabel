@@ -6,6 +6,7 @@ import {
   deleteCategoryAction,
   updateCategoryAction,
 } from "@/app/admin/categorias/actions";
+import { socialImageConfig } from "@/config/app";
 import { getPrisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 
@@ -211,7 +212,7 @@ export default async function AdminCategoriasPage({
                 <input className="h-10 w-full min-w-0 rounded-md border border-[#d8cbbd] px-3" name="slug" required />
               </label>
               <p className="-mt-2 text-xs text-[#69625b]">
-                Usar minusculas, numeros y guiones. La imagen se guardara como slug.webp.
+                Usar minusculas, numeros y guiones. La imagen se guardara como slug.webp en formato {socialImageConfig.width}x{socialImageConfig.height}.
               </p>
               <label className="grid gap-2 text-sm font-medium">
                 Categoria padre
@@ -272,10 +273,10 @@ export default async function AdminCategoriasPage({
                           {category.imagen ? (
                             <Image
                               alt=""
-                              className="h-14 w-14 shrink-0 rounded-md border border-[#eee4da] object-cover"
-                              height={56}
+                              className="h-14 w-28 shrink-0 rounded-md border border-[#eee4da] object-cover"
+                              height={socialImageConfig.height}
                               src={`/media/categorias/${category.imagen}`}
-                              width={56}
+                              width={socialImageConfig.width}
                             />
                           ) : null}
                           <p className="break-words text-xs text-[#69625b]">

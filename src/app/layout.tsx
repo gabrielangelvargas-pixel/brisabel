@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { appConfig } from "@/config/app";
+import { appConfig, socialImageConfig } from "@/config/app";
 import { SiteNavigation } from "@/components/site-navigation";
 
 import "./globals.css";
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: appConfig.image,
-        width: 1200,
-        height: 1200,
+        width: socialImageConfig.width,
+        height: socialImageConfig.height,
         alt: appConfig.name,
       },
     ],

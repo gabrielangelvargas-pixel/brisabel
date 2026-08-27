@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { z } from "zod";
 
+import { socialImageConfig } from "@/config/app";
 import { getPrisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { categoryImagePath, categoryUploadsDir } from "@/lib/uploads";
@@ -65,7 +66,7 @@ async function saveCategoryImage(formData: FormData, slug: string) {
     await mkdir(categoryUploadsDir, { recursive: true });
     await sharp(buffer)
       .rotate()
-      .resize(1200, 1200, {
+      .resize(socialImageConfig.width, socialImageConfig.height, {
         fit: "cover",
         position: "center",
       })

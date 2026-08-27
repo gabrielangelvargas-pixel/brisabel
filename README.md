@@ -43,7 +43,7 @@ BRISABEL_UPLOADS_DIR="/home/u605057087/domains/brisabel.com.ar/imagenes"
 Si la app corre dentro de Hostinger, el host puede ser `localhost` o `127.0.0.1`.
 Para correr migraciones desde tu computadora, habilita Remote MySQL en Hostinger y usa el hostname remoto que aparece en hPanel.
 
-Las imagenes de categorias se guardan como `.webp` en:
+Las imagenes de categorias se convierten a `.webp` en formato social horizontal `1200x628` y se guardan en:
 
 ```text
 BRISABEL_UPLOADS_DIR/categorias

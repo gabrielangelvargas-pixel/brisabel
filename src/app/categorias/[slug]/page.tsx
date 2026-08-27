@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Boxes, ChevronRight, Tag } from "lucide-react";
 
-import { appConfig } from "@/config/app";
+import { appConfig, socialImageConfig } from "@/config/app";
 import { getPrisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -120,8 +120,8 @@ export async function generateMetadata({
       images: [
         {
           url: imageUrl,
-          width: 1200,
-          height: 1200,
+          width: socialImageConfig.width,
+          height: socialImageConfig.height,
           alt: `${category.nombre} - ${appConfig.name}`,
         },
       ],
@@ -195,11 +195,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <div className="order-1 overflow-hidden rounded-lg border border-[#e1d8cc] bg-white shadow-sm lg:order-2">
           <Image
             alt={`${category.nombre} - ${appConfig.name}`}
-            className="aspect-square h-auto w-full object-cover"
-            height={1200}
+            className="aspect-[1200/628] h-auto w-full object-cover"
+            height={socialImageConfig.height}
             priority
             src={imagePath}
-            width={1200}
+            width={socialImageConfig.width}
           />
         </div>
       </section>
@@ -218,10 +218,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   {child.imagen ? (
                     <Image
                       alt={`${child.nombre} - ${appConfig.name}`}
-                      className="mb-4 aspect-square w-full rounded-md object-cover"
-                      height={600}
+                      className="mb-4 aspect-[1200/628] w-full rounded-md object-cover"
+                      height={socialImageConfig.height}
                       src={`/media/categorias/${child.imagen}`}
-                      width={600}
+                      width={socialImageConfig.width}
                     />
                   ) : null}
                   <h3 className="text-lg font-semibold">{child.nombre}</h3>
