@@ -42,6 +42,7 @@ model Categoria {
   nombre      String
   slug        String      @unique
   descripcion String?     @db.VarChar(500)
+  imagen      String?     @db.VarChar(255)
   orden       Int         @default(0)
   parentId    String?     @db.VarChar(40)
   parent      Categoria?  @relation("CategoriaJerarquia", fields: [parentId], references: [id], onDelete: SetNull)

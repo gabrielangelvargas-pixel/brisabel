@@ -1,0 +1,2 @@
+ALTER TABLE `Categoria`
+  ADD COLUMN `imagen` VARCHAR(255) NULL;
