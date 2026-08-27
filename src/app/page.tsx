@@ -107,7 +107,7 @@ export default async function Home() {
   const { categories, hasError } = await getHomeCategories();
 
   return (
-    <main className="min-h-screen bg-[#fbfaf8] text-[#1f2320]">
+    <main className="min-h-screen bg-[#fbfaf8] pb-24 text-[#1f2320]">
       <header className="border-b border-[#e6ded3] bg-[#fbfaf8]/95">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-10">
           <Link className="flex items-center gap-3" href="/">
@@ -129,7 +129,7 @@ export default async function Home() {
           </div>
           <a
             className="inline-flex h-10 items-center gap-2 rounded-md bg-[#1f2320] px-4 text-sm font-medium text-white transition hover:bg-[#39423b]"
-            href="#destacados"
+            href="/catalogo"
           >
             Ver productos
             <ArrowRight className="h-4 w-4" />
@@ -153,7 +153,7 @@ export default async function Home() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
               className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#7f4f3a] px-5 text-sm font-semibold text-white transition hover:bg-[#6a412f]"
-              href="#categorias"
+              href="/catalogo"
             >
               Explorar categorias
               <Search className="h-4 w-4" />

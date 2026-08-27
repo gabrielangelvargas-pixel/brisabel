@@ -147,7 +147,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const imagePath = getCategoryImagePath(category.imagen);
 
   return (
-    <main className="min-h-screen bg-[#fbfaf8] text-[#1f2320]">
+    <main className="min-h-screen bg-[#fbfaf8] pb-24 text-[#1f2320]">
       <section className="mx-auto grid max-w-7xl gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-10 lg:py-12">
         <div className="order-2 flex flex-col justify-center lg:order-1">
           <Link
