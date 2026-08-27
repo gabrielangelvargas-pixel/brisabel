@@ -19,6 +19,31 @@ export const metadata: Metadata = {
   metadataBase: new URL(appConfig.url),
   title: appConfig.name,
   description: appConfig.description,
+  alternates: {
+    canonical: appConfig.url,
+  },
+  openGraph: {
+    title: appConfig.name,
+    description: appConfig.description,
+    url: appConfig.url,
+    siteName: appConfig.name,
+    type: "website",
+    locale: "es_AR",
+    images: [
+      {
+        url: appConfig.image,
+        width: 1200,
+        height: 1200,
+        alt: appConfig.name,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: appConfig.name,
+    description: appConfig.description,
+    images: [appConfig.image],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

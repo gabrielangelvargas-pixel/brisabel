@@ -73,7 +73,7 @@ function getCategoryUrl(slug: string) {
 
 function getCategoryImageUrl(imageName: string | null) {
   if (!imageName) {
-    return new URL("/images/brisabel-hero.png", appConfig.url).toString();
+    return new URL(appConfig.image, appConfig.url).toString();
   }
 
   return new URL(`/media/categorias/${imageName}`, appConfig.url).toString();
@@ -81,7 +81,7 @@ function getCategoryImageUrl(imageName: string | null) {
 
 function getCategoryImagePath(imageName: string | null) {
   if (!imageName) {
-    return "/images/brisabel-hero.png";
+    return appConfig.image;
   }
 
   return `/media/categorias/${imageName}`;
