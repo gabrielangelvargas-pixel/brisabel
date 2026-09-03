@@ -4,7 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 
+import { CategoryLevelSelect } from "@/components/category-level-select";
 import { appConfig, socialImageConfig } from "@/config/app";
+import { getCategoryFamilyIds } from "@/lib/category-family";
 import { getPrisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -27,32 +29,29 @@ async function getCategory(slug: string) {
           id: true,
           nombre: true,
           slug: true,
-          descripcion: true,
-          imagen: true,
-          _count: {
-            select: {
-              children: true,
-              productos: true,
-            },
-          },
         },
       },
-      productos: {
-        orderBy: [{ descripcion: "asc" }],
-        select: {
-          id: true,
-          codigo: true,
-          descripcion: true,
-          precioVenta: true,
-          imagen: true,
-        },
+    },
+  });
+}
+
+async function getProductsByCategoryFamily(categoryId: string) {
+  const familyIds = await getCategoryFamilyIds(categoryId);
+
+  return getPrisma().producto.findMany({
+    where: {
+      activo: true,
+      categoriaId: {
+        in: familyIds,
       },
-      _count: {
-        select: {
-          children: true,
-          productos: true,
-        },
-      },
+    },
+    orderBy: [{ descripcion: "asc" }],
+    select: {
+      id: true,
+      codigo: true,
+      descripcion: true,
+      precioVenta: true,
+      imagen: true,
     },
   });
 }
@@ -143,6 +142,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
+  const products = await getProductsByCategoryFamily(category.id);
   const imagePath = getCategoryImagePath(category.imagen);
 
   return (
@@ -184,47 +184,31 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       <section className="mx-auto max-w-7xl px-5 pb-14 sm:px-8 lg:px-10">
         {category.children.length > 0 ? (
-          <div>
-            <div className="flex items-end justify-between gap-4">
-              <h2 className="text-2xl font-semibold">Subcategorias</h2>
-              <span className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-[#98715c] sm:block">
-                Desliza para ver mas
-              </span>
-            </div>
-            <div className="-mx-5 mt-5 flex snap-x gap-3 overflow-x-auto px-5 pb-4 [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:mx-0 lg:px-0 [&::-webkit-scrollbar]:hidden">
-              {category.children.map((child) => (
-                <Link
-                  className="min-w-[78%] max-w-[18rem] snap-start rounded-lg border border-[#e1d8cc] bg-white p-3 shadow-sm transition hover:-translate-y-1 hover:border-[#c7a18a] sm:min-w-[18rem]"
-                  href={`/categorias/${child.slug}`}
-                  key={child.id}
-                >
-                  <Image
-                    alt={`${child.nombre} - ${appConfig.name}`}
-                    className="mb-4 aspect-[1200/628] w-full rounded-md object-cover"
-                    height={socialImageConfig.height}
-                    src={getCategoryImagePath(child.imagen)}
-                    width={socialImageConfig.width}
-                  />
-                  <h3 className="text-lg font-semibold">{child.nombre}</h3>
-                  {child.descripcion ? (
-                    <p className="mt-2 text-sm leading-6 text-[#69625b]">
-                      {child.descripcion}
-                    </p>
-                  ) : null}
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#98715c]">
-                    {child._count.children} hijas / {child._count.productos} productos
-                  </p>
-                </Link>
-              ))}
-            </div>
+          <div className="max-w-xl">
+            <CategoryLevelSelect
+              currentLabel={category.nombre}
+              currentSlug={category.slug}
+              options={category.children.map((child) => ({
+                label: child.nombre,
+                slug: child.slug,
+              }))}
+            />
           </div>
         ) : null}
 
-        <div className={category.children.length > 0 ? "mt-12" : ""}>
-          <h2 className="text-2xl font-semibold">Productos</h2>
-          {category.productos.length > 0 ? (
+        <div className={category.children.length > 0 ? "mt-6" : ""}>
+          <div className="flex items-end justify-between gap-4">
+            <h2 className="text-2xl font-semibold">Productos</h2>
+            {category.children.length > 0 ? (
+              <p className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-[#98715c] sm:block">
+                {category.children.length} subcategorias
+              </p>
+            ) : null}
+          </div>
+
+          {products.length > 0 ? (
             <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {category.productos.map((product) => (
+              {products.map((product) => (
                 <article
                   className="rounded-lg border border-[#e1d8cc] bg-white p-5 shadow-sm"
                   key={product.id}

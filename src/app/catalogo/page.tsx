@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Boxes, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
-import { appConfig } from "@/config/app";
+import { CategoryLevelSelect } from "@/components/category-level-select";
+import { appConfig, socialImageConfig } from "@/config/app";
+import { getCategoryFamilyIds } from "@/lib/category-family";
 import { getPrisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -12,12 +13,47 @@ export const metadata: Metadata = {
   description: "Explora las categorias del catalogo de Brisabel.",
 };
 
-async function getCategories() {
+type CatalogPageProps = PageProps<"/catalogo">;
+
+function getCategoryImagePath(imageName: string | null) {
+  if (!imageName) {
+    return appConfig.image;
+  }
+
+  return `/media/categorias/${imageName}`;
+}
+
+function getSingleSearchParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+
+  return value;
+}
+
+async function getParentCategories() {
   return getPrisma().categoria.findMany({
     where: {
       parentId: null,
     },
     orderBy: [{ orden: "asc" }, { nombre: "asc" }],
+    select: {
+      id: true,
+      nombre: true,
+      slug: true,
+    },
+  });
+}
+
+async function getSelectedCategory(slug: string | undefined) {
+  if (!slug) {
+    return null;
+  }
+
+  return getPrisma().categoria.findUnique({
+    where: {
+      slug,
+    },
     include: {
       children: {
         orderBy: [{ orden: "asc" }, { nombre: "asc" }],
@@ -27,74 +63,114 @@ async function getCategories() {
           slug: true,
         },
       },
-      _count: {
-        select: {
-          children: true,
-          productos: true,
-        },
-      },
     },
   });
 }
 
-export default async function CatalogPage() {
-  const categories = await getCategories();
+async function getProducts(categoryId: string | null) {
+  const categoryIds = categoryId ? await getCategoryFamilyIds(categoryId) : null;
+
+  return getPrisma().producto.findMany({
+    where: {
+      activo: true,
+      ...(categoryIds
+        ? {
+            categoriaId: {
+              in: categoryIds,
+            },
+          }
+        : {}),
+    },
+    orderBy: [{ descripcion: "asc" }],
+    select: {
+      id: true,
+      codigo: true,
+      descripcion: true,
+      precioVenta: true,
+      imagen: true,
+    },
+  });
+}
+
+export default async function CatalogPage({ searchParams }: CatalogPageProps) {
+  const selectedSlug = getSingleSearchParam((await searchParams).categoria);
+  const [parentCategories, selectedCategory] = await Promise.all([
+    getParentCategories(),
+    getSelectedCategory(selectedSlug),
+  ]);
+  const products = await getProducts(selectedCategory?.id ?? null);
+  const selectorCategories = selectedCategory
+    ? selectedCategory.children
+    : parentCategories;
+  const imagePath = getCategoryImagePath(selectedCategory?.imagen ?? null);
 
   return (
-    <main className="min-h-screen bg-[#fbfaf8] px-5 pb-28 pt-8 text-[#1f2320] sm:px-8 lg:px-10">
-      <section className="mx-auto max-w-7xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#98715c]">
-          Catalogo
-        </p>
-        <div className="mt-3 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <h1 className="text-4xl font-semibold leading-tight sm:text-5xl">
-              Explora por categoria
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#69625b]">
-              Navega los rubros principales y entra a cada familia para ver sus
-              subcategorias y productos publicados.
-            </p>
-          </div>
+    <main className="min-h-screen bg-[#fbfaf8] pb-24 text-[#1f2320]">
+      <section className="mx-auto max-w-7xl px-5 py-5 sm:px-8 sm:py-8 lg:px-10">
+        <h1 className="sr-only">
+          {selectedCategory ? selectedCategory.nombre : "Catalogo"}
+        </h1>
+
+        <div className="overflow-hidden rounded-lg border border-[#e1d8cc] bg-white shadow-sm">
+          <Image
+            alt={
+              selectedCategory
+                ? `${selectedCategory.nombre} - ${appConfig.name}`
+                : `${appConfig.name} catalogo`
+            }
+            className="aspect-[1200/628] h-auto w-full object-cover"
+            height={socialImageConfig.height}
+            preload
+            src={imagePath}
+            width={socialImageConfig.width}
+          />
         </div>
+      </section>
 
-        {categories.length > 0 ? (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => (
-              <Link
-                className="group rounded-lg border border-[#e1d8cc] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-[#c7a18a]"
-                href={`/categorias/${category.slug}`}
-                key={category.id}
-              >
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md bg-[#f2e4db] text-[#7f4f3a]">
-                  <Boxes className="h-5 w-5" />
-                </div>
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className="text-lg font-semibold">{category.nombre}</h2>
-                  <ChevronRight className="mt-1 h-4 w-4 text-[#98715c] transition group-hover:translate-x-1" />
-                </div>
-                <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#98715c]">
-                  {category._count.children} subcategorias / {category._count.productos} productos
-                </p>
+      <section className="mx-auto max-w-7xl px-5 pb-14 sm:px-8 lg:px-10">
+        {selectedCategory || selectorCategories.length > 0 ? (
+          <div className="max-w-xl">
+            <CategoryLevelSelect
+              currentLabel={selectedCategory?.nombre}
+              currentSlug={selectedCategory?.slug}
+              options={selectorCategories.map((category) => ({
+                label: category.nombre,
+                slug: category.slug,
+              }))}
+            />
+          </div>
+        ) : null}
 
-                {category.children.length > 0 ? (
-                  <ul className="mt-4 grid gap-2 border-t border-[#eee5dc] pt-4 text-sm text-[#504a44]">
-                    {category.children.map((child) => (
-                      <li className="flex items-center gap-2" key={child.id}>
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#c7a18a]" />
-                        {child.nombre}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-8 rounded-lg border border-[#e1d8cc] bg-white p-6 text-sm leading-6 text-[#69625b] shadow-sm">
-            Todavia no hay categorias cargadas.
-          </div>
-        )}
+        <div
+          className={
+            selectedCategory || selectorCategories.length > 0 ? "mt-6" : ""
+          }
+        >
+          <h2 className="text-2xl font-semibold">Productos</h2>
+
+          {products.length > 0 ? (
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map((product) => (
+                <article
+                  className="rounded-lg border border-[#e1d8cc] bg-white p-5 shadow-sm"
+                  key={product.id}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#98715c]">
+                    {product.codigo}
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold">{product.descripcion}</h3>
+                  <p className="mt-4 text-xl font-semibold">
+                    ${product.precioVenta.toString()}
+                  </p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-lg border border-[#e1d8cc] bg-white p-6 text-sm leading-6 text-[#69625b] shadow-sm">
+              Todavia no hay productos cargados.
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );
