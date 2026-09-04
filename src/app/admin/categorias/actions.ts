@@ -32,9 +32,16 @@ function redirectWithError(error: string): never {
   redirect(`/admin/categorias?error=${error}`);
 }
 
-function revalidateCategories() {
+function revalidateCategories(slugs: Array<string | null | undefined> = []) {
   revalidatePath("/");
   revalidatePath("/admin/categorias");
+  revalidatePath("/catalogo");
+
+  for (const slug of slugs) {
+    if (slug) {
+      revalidatePath(`/categorias/${slug}`);
+    }
+  }
 }
 
 function getImageFile(formData: FormData) {
@@ -188,7 +195,7 @@ export async function createCategoryAction(formData: FormData) {
     redirectWithError("duplicate");
   }
 
-  revalidateCategories();
+  revalidateCategories([data.slug]);
   redirect("/admin/categorias?created=1");
 }
 
@@ -214,6 +221,19 @@ export async function updateCategoryAction(formData: FormData) {
   await assertValidParent(parentId, id.data);
   await assertUniqueSlug(data.slug, id.data);
 
+  const existingCategory = await getPrisma().categoria.findUnique({
+    where: {
+      id: id.data,
+    },
+    select: {
+      slug: true,
+    },
+  });
+
+  if (!existingCategory) {
+    redirectWithError("missing");
+  }
+
   const imagen = await saveCategoryImage(formData, data.slug);
 
   try {
@@ -234,7 +254,7 @@ export async function updateCategoryAction(formData: FormData) {
     redirectWithError("duplicate");
   }
 
-  revalidateCategories();
+  revalidateCategories([existingCategory.slug, data.slug]);
   redirect("/admin/categorias?updated=1");
 }
 

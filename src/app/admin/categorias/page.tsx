@@ -304,7 +304,10 @@ export default async function AdminCategoriasPage({
                       <summary className="cursor-pointer text-sm font-semibold text-[#7f4f3a]">
                         Editar categoria
                       </summary>
-                      <form action={updateCategoryAction} className="mt-4 grid gap-4">
+                      <form
+                        action={updateCategoryAction}
+                        className="mt-4 grid gap-4"
+                      >
                         <input name="id" type="hidden" value={category.id} />
                         <div className="grid gap-4 sm:grid-cols-2">
                           <label className="grid gap-2 text-sm font-medium">

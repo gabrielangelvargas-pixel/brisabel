@@ -11,7 +11,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const imageHeaders = {
-  "Cache-Control": "public, max-age=3600",
+  "Cache-Control": "no-store, max-age=0",
   "Content-Type": "image/webp",
 };
 

@@ -70,12 +70,20 @@ function getCategoryUrl(slug: string) {
   return new URL(`/categorias/${slug}`, appConfig.url).toString();
 }
 
-function getCategoryImageUrl(imageName: string | null) {
-  if (!imageName) {
-    return new URL(appConfig.image, appConfig.url).toString();
+function getVersionedCategoryImageUrl(
+  imageName: string | null,
+  updatedAt: Date,
+) {
+  const imageUrl = new URL(
+    imageName ? `/media/categorias/${imageName}` : appConfig.image,
+    appConfig.url,
+  );
+
+  if (imageName) {
+    imageUrl.searchParams.set("v", updatedAt.getTime().toString());
   }
 
-  return new URL(`/media/categorias/${imageName}`, appConfig.url).toString();
+  return imageUrl.toString();
 }
 
 function getCategoryImagePath(imageName: string | null) {
@@ -101,7 +109,10 @@ export async function generateMetadata({
   const title = `${category.nombre} - ${appConfig.name}`;
   const description = getCategoryDescription(category);
   const url = getCategoryUrl(category.slug);
-  const imageUrl = getCategoryImageUrl(category.imagen);
+  const imageUrl = getVersionedCategoryImageUrl(
+    category.imagen,
+    category.updatedAt,
+  );
 
   return {
     title,
