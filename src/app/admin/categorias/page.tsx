@@ -16,6 +16,7 @@ type Category = {
   slug: string;
   descripcion: string | null;
   imagen: string | null;
+  updatedAt: Date;
   orden: number;
   parentId: string | null;
   parent: {
@@ -275,7 +276,7 @@ export default async function AdminCategoriasPage({
                               alt=""
                               className="h-14 w-28 shrink-0 rounded-md border border-[#eee4da] object-cover"
                               height={socialImageConfig.height}
-                              src={`/media/categorias/${category.imagen}`}
+                              src={`/media/categorias/version/${category.updatedAt.getTime()}/${category.imagen}`}
                               width={socialImageConfig.width}
                             />
                           ) : null}

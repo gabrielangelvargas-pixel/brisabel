@@ -19,6 +19,7 @@ type CatalogCategory = {
   slug: string;
   descripcion: string | null;
   imagen: string | null;
+  updatedAt: Date;
   parentId: string | null;
   _count: {
     children: number;
@@ -28,12 +29,12 @@ type CatalogCategory = {
 
 type CategoryGroups = Map<string | null, CatalogCategory[]>;
 
-function getCategoryImagePath(imageName: string | null) {
-  if (!imageName) {
+function getCategoryImagePath(category: CatalogCategory) {
+  if (!category.imagen) {
     return appConfig.image;
   }
 
-  return `/media/categorias/${imageName}`;
+  return `/media/categorias/version/${category.updatedAt.getTime()}/${category.imagen}`;
 }
 
 function getCategoryStats(category: CatalogCategory) {
@@ -67,6 +68,7 @@ async function getCategories() {
       slug: true,
       descripcion: true,
       imagen: true,
+      updatedAt: true,
       parentId: true,
       _count: {
         select: {
@@ -100,7 +102,7 @@ function CategoryImage({
       className="aspect-[1200/628] h-auto w-full object-cover transition duration-300 group-hover:scale-[1.03]"
       height={socialImageConfig.height}
       preload={preload}
-      src={getCategoryImagePath(category.imagen)}
+      src={getCategoryImagePath(category)}
       width={socialImageConfig.width}
     />
   );

@@ -75,23 +75,21 @@ function getVersionedCategoryImageUrl(
   updatedAt: Date,
 ) {
   const imageUrl = new URL(
-    imageName ? `/media/categorias/${imageName}` : appConfig.image,
+    imageName
+      ? `/media/categorias/version/${updatedAt.getTime()}/${imageName}`
+      : appConfig.image,
     appConfig.url,
   );
-
-  if (imageName) {
-    imageUrl.searchParams.set("v", updatedAt.getTime().toString());
-  }
 
   return imageUrl.toString();
 }
 
-function getCategoryImagePath(imageName: string | null) {
+function getCategoryImagePath(imageName: string | null, updatedAt: Date) {
   if (!imageName) {
     return appConfig.image;
   }
 
-  return `/media/categorias/${imageName}`;
+  return `/media/categorias/version/${updatedAt.getTime()}/${imageName}`;
 }
 
 export async function generateMetadata({
@@ -154,7 +152,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   const products = await getProductsByCategoryFamily(category.id);
-  const imagePath = getCategoryImagePath(category.imagen);
+  const imagePath = getCategoryImagePath(category.imagen, category.updatedAt);
 
   return (
     <main className="min-h-screen bg-[#fbfaf8] pb-24 text-[#1f2320]">
