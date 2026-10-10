@@ -1,6 +1,6 @@
 # Brisabel
 
-Tienda online de Brisabel. Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4.
+Tienda online de Brisabel. Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Prisma 7 + MySQL.
 
 ## Requisitos
 
@@ -26,6 +26,10 @@ La app queda en http://localhost:3000.
 | `npm run lint`      | ESLint                                    |
 | `npm run typecheck` | Genera tipos de rutas y corre TypeScript  |
 | `npm run check`     | Lint + typecheck (correr antes de commit) |
+| `npm run db:check`  | Verifica la conexión a la base            |
+| `npm run db:migrate`| Crea y aplica una migración (desarrollo)  |
+| `npm run db:deploy` | Aplica migraciones pendientes (producción)|
+| `npm run db:studio` | Explorador visual de la base              |
 
 GitHub Actions corre lint, typecheck y build en cada push y pull request (`.github/workflows/ci.yml`).
 
@@ -47,6 +51,14 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 | Variable              | Descripción                       |
 | --------------------- | --------------------------------- |
 | `NEXT_PUBLIC_APP_URL` | URL pública de la app, sin barra final |
+| `DATABASE_URL`        | Conexión MySQL: `mysql://USUARIO:PASSWORD@HOST:3306/BASE?connection_limit=5` |
+
+## Base de datos
+
+- Schema en `prisma/schema.prisma`; el cliente se genera en `src/generated/prisma` (no se versiona, lo crea `npm install`).
+- Acceso a datos solo desde el servidor, con `getDb()` de `src/lib/db.ts`.
+- Cada cambio de schema va con su migración (`npm run db:migrate -- --name descripcion`).
+- Para conectarte desde tu PC a Hostinger, habilitá **Remote MySQL** en hPanel para tu IP.
 
 ## Hoja de ruta
 
