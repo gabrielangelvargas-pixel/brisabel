@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
+import { ROLES, type RolCodigo } from "@/lib/auth/roles";
 import { getDb } from "@/lib/db";
 
 const cookieName = "brisabel_session";
@@ -15,6 +16,7 @@ export type CurrentUser = {
   id: string;
   nombre: string;
   username: string;
+  rol: RolCodigo;
 };
 
 function hashToken(token: string) {
@@ -68,7 +70,13 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     select: {
       expiresAt: true,
       usuario: {
-        select: { id: true, nombre: true, username: true, activo: true },
+        select: {
+          id: true,
+          nombre: true,
+          username: true,
+          activo: true,
+          rol: { select: { codigo: true } },
+        },
       },
     },
   });
@@ -77,17 +85,22 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     return null;
   }
 
-  const { id, nombre, username } = session.usuario;
+  const { id, nombre, username, rol } = session.usuario;
 
-  return { id, nombre, username };
+  return { id, nombre, username, rol: rol.codigo as RolCodigo };
 });
 
-// Para páginas y server actions del panel: sin sesión, redirige al login.
+// Para páginas y server actions del panel: sin sesión redirige al login;
+// con sesión de otro rol, al inicio.
 export async function requireAdmin() {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/ingresar");
+  }
+
+  if (user.rol !== ROLES.ADMIN) {
+    redirect("/");
   }
 
   return user;

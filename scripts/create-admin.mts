@@ -1,5 +1,8 @@
 // Crea un administrador, o actualiza nombre/DNI/contraseña si el usuario ya existe.
 // Uso: npm run admin:create (pregunta los datos; la contraseña no se muestra).
+//      npm run admin:create -- --sql  → no se conecta: imprime el INSERT para
+//      ejecutarlo en phpMyAdmin, con la contraseña ya hasheada.
+import { randomBytes } from "node:crypto";
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline";
 
@@ -10,6 +13,7 @@ import { dniSchema, passwordSchema, usernameSchema } from "../src/features/auth/
 import { PrismaClient } from "../src/generated/prisma/client";
 import { hashPassword } from "../src/lib/auth/password";
 import { toPoolConfig } from "../src/lib/db-config";
+import { ROLES } from "../src/lib/auth/roles";
 
 nextEnv.loadEnvConfig(process.cwd());
 
@@ -38,9 +42,10 @@ function fail(message: string): never {
   process.exit(1);
 }
 
+const sqlOnly = process.argv.includes("--sql");
 const databaseUrl = process.env.DATABASE_URL;
 
-if (!databaseUrl) {
+if (!sqlOnly && !databaseUrl) {
   fail("DATABASE_URL no está configurada en .env");
 }
 
@@ -59,16 +64,24 @@ if (dni && !dni.success) fail("DNI inválido.");
 if (!password.success) fail(`Contraseña inválida: ${password.error.issues[0]?.message}`);
 if (password.data !== confirmation) fail("Las contraseñas no coinciden.");
 
+const passwordHash = await hashPassword(password.data);
+
+if (sqlOnly) {
+  printInsertSql();
+  process.exit(0);
+}
+
 const db = new PrismaClient({
-  adapter: new PrismaMariaDb(toPoolConfig(databaseUrl)),
+  adapter: new PrismaMariaDb(toPoolConfig(databaseUrl!)),
 });
 
 try {
   const data = {
     nombre,
     dni: dni?.data ?? null,
-    passwordHash: await hashPassword(password.data),
+    passwordHash,
     activo: true,
+    rol: { connect: { codigo: ROLES.ADMIN } },
   };
 
   await db.usuario.upsert({
@@ -82,4 +95,24 @@ try {
   fail(`No se pudo guardar: ${error instanceof Error ? error.message : String(error)}`);
 } finally {
   await db.$disconnect();
+}
+
+function printInsertSql() {
+  const quote = (value: string | null) =>
+    value === null ? "NULL" : `'${value.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`;
+  const id = `c${randomBytes(12).toString("hex")}`;
+  const values = [
+    quote(id),
+    quote(nombre),
+    quote(username.data!),
+    quote(dni?.data ?? null),
+    quote(passwordHash),
+  ].join(", ");
+
+  console.log(`
+-- Ejecutar en phpMyAdmin sobre la base de la app:
+INSERT INTO \`Usuario\` (\`id\`, \`nombre\`, \`username\`, \`dni\`, \`passwordHash\`, \`activo\`, \`rolId\`, \`createdAt\`, \`updatedAt\`)
+SELECT ${values}, true, \`id\`, NOW(3), NOW(3)
+FROM \`Rol\` WHERE \`codigo\` = '${ROLES.ADMIN}';
+`);
 }

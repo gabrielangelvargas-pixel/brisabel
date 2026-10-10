@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { loginSchema, parseIdentifier } from "@/features/auth/schemas";
 import { getDb } from "@/lib/db";
 import { getDummyPasswordHash, verifyPassword } from "@/lib/auth/password";
+import { ROLES } from "@/lib/auth/roles";
 import {
   clearLoginFailures,
   isLoginBlocked,
@@ -49,7 +50,12 @@ export async function loginAction(
   try {
     usuario = await getDb().usuario.findUnique({
       where: parseIdentifier(identificador),
-      select: { id: true, passwordHash: true, activo: true },
+      select: {
+        id: true,
+        passwordHash: true,
+        activo: true,
+        rol: { select: { codigo: true } },
+      },
     });
   } catch (error) {
     console.error("Login: no se pudo consultar la base", error);
@@ -63,7 +69,8 @@ export async function loginAction(
     usuario?.passwordHash ?? (await getDummyPasswordHash()),
   );
 
-  if (!usuario || !usuario.activo || !isValid) {
+  // Por ahora solo ingresan administradores; las cuentas de cliente vendrán después.
+  if (!usuario || !usuario.activo || usuario.rol.codigo !== ROLES.ADMIN || !isValid) {
     limitKeys.forEach(registerLoginFailure);
     return { error: invalidCredentials, identificador };
   }

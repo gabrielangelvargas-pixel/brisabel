@@ -7,7 +7,15 @@ datasource db {
   provider = "mysql"
 }
 
-// Administradores del sitio. Ingresan con nombre de usuario o DNI.
+// Roles de usuario. Los registros base (ADMIN, CLIENTE) los crea la migración.
+model Rol {
+  id       Int       @id @default(autoincrement())
+  codigo   String    @unique @db.VarChar(30)
+  nombre   String    @db.VarChar(60)
+  usuarios Usuario[]
+}
+
+// Usuarios del sitio. Ingresan con nombre de usuario o DNI.
 model Usuario {
   id           String   @id @default(cuid()) @db.VarChar(30)
   nombre       String   @db.VarChar(120)
@@ -15,9 +23,13 @@ model Usuario {
   dni          String?  @unique @db.VarChar(12)
   passwordHash String   @db.VarChar(255)
   activo       Boolean  @default(true)
+  rolId        Int
+  rol          Rol      @relation(fields: [rolId], references: [id], onDelete: Restrict)
   sesiones     Sesion[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([rolId])
 }
 
 // Sesiones de login. Solo se guarda el hash SHA-256 del token de la cookie.

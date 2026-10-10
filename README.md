@@ -27,6 +27,7 @@ La app queda en http://localhost:3000.
 | `npm run typecheck` | Genera tipos de rutas y corre TypeScript  |
 | `npm run check`     | Lint + typecheck (correr antes de commit) |
 | `npm run admin:create` | Crea o actualiza un administrador (pide los datos) |
+| `npm run admin:create -- --sql` | Igual, pero imprime el INSERT para phpMyAdmin sin conectarse |
 | `npm run db:check`  | Verifica la conexión a la base            |
 | `npm run db:migration -- nombre` | Genera el SQL de una migración (no toca la base) |
 | `npm run db:deploy` | Aplica las migraciones pendientes         |
@@ -80,16 +81,19 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 
 ## Autenticación
 
-- Solo administradores. Ingresan en `/ingresar` con **nombre de usuario o DNI** y contraseña.
+- Roles en la tabla `Rol`: `ADMIN` (Administrador) y `CLIENTE` (Cliente), creados por la migración `roles`.
+- Por ahora solo ingresan usuarios con rol `ADMIN`. Ingresan en `/ingresar` con **nombre de usuario o DNI** y contraseña.
 - Sesiones guardadas en la tabla `Sesion` (solo el hash del token); cookie `httpOnly` de 7 días.
 - Límite de 5 intentos fallidos cada 15 minutos por IP y por usuario.
 - Crear el primer admin: `npm run db:deploy` (si faltan las tablas) y luego `npm run admin:create`.
+  Sin acceso remoto a MySQL: `npm run admin:create -- --sql` y ejecutar el INSERT en phpMyAdmin.
+- Si una migración se aplica a mano en phpMyAdmin, hay que registrarla en `_prisma_migrations`; si no, `db:deploy` la intentará aplicar de nuevo.
 
 ## Hoja de ruta
 
 1. ~~Base del proyecto~~
 2. Base de datos (Prisma + MySQL)
-3. ~~Autenticación de administradores~~ (falta aplicar la migración)
+3. ~~Autenticación de administradores~~
 4. Categorías (ABM + catálogo público)
 5. Productos
 6. Carrito y pedidos

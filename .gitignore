@@ -49,3 +49,6 @@ skills-lock.json
 
 # prisma client generado
 /src/generated/
+
+# SQL de un solo uso para importar en phpMyAdmin
+/phpmyadmin-*.sql
