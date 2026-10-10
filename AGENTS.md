@@ -21,4 +21,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Variables de entorno:** leerlas desde `src/config/env.ts` (validadas con zod), nunca `process.env` suelto en el resto del código.
 - **Validación:** toda entrada de usuario se valida con zod en el servidor.
 - **Seguridad:** cada server action que modifica datos verifica permisos por sí misma, aunque la página ya esté protegida.
+- **Base de datos:** una única base MySQL (Hostinger), sin shadow database. No usar `prisma migrate dev` ni `db push`. Cambios de schema: `npm run db:migration -- nombre`, revisar el SQL, `npm run db:deploy` (aplicar solo con confirmación del usuario).
 - **Antes de commitear:** `npm run check` tiene que pasar.
