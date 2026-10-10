@@ -1,19 +1,22 @@
 @import "tailwindcss";
 
 /*
- * Tokens de marca. Usar siempre estas clases (bg-surface, text-muted,
- * border-line, bg-brand...) en lugar de colores hex sueltos en los componentes.
+ * Tokens de marca, tomados del logo. Usar siempre estas clases (bg-surface,
+ * text-muted, border-line, bg-brand...) en lugar de colores hex sueltos.
  */
 @theme {
-  --color-canvas: #fbfaf8;
+  --color-canvas: #fbfaf7;
   --color-surface: #ffffff;
-  --color-ink: #1f2320;
-  --color-muted: #69625b;
-  --color-line: #e1d8cc;
-  --color-brand: #7f4f3a;
-  --color-brand-strong: #5f3828;
-  --color-brand-soft: #f2e4db;
-  --color-accent: #98715c;
+  --color-ink: #1d2a1d;
+  --color-muted: #5d6858;
+  --color-line: #e3e7dc;
+  --color-brand: #213521;
+  --color-brand-strong: #152215;
+  --color-brand-soft: #eef2e6;
+  --color-leaf: #869d4d;
+  --color-accent: #c93a54;
+  --color-accent-soft: #ffe4e8;
+  --color-heart: #fd687a;
 }
 
 @theme inline {
@@ -24,4 +27,9 @@
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
+}
+
+/* Evita que la página de fondo se desplace con un menú o modal abierto. */
+html:has(dialog[open]:modal) {
+  overflow: hidden;
 }

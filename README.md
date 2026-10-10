@@ -40,11 +40,18 @@ GitHub Actions corre lint, typecheck y build en cada push y pull request (`.gith
 ```text
 src/
   app/                  Rutas (páginas, layouts, route handlers). Delgadas.
+    (site)/             Tienda pública: comparte el navbar (SiteHeader).
+  components/layout/    Navbar, menú lateral y logo.
   features/<dominio>/   Lógica por dominio: queries, actions, schemas, components.
   components/ui/        Componentes visuales reutilizables.
   lib/                  Utilidades transversales (db, auth, storage).
   config/               Configuración del sitio y variables de entorno validadas.
 ```
+
+Otros:
+
+- `public/brand/logo.png`: logo optimizado para la web (800 px). El original en alta está en `assets/brand/` (no se publica).
+- `public/og.png`: imagen para compartir en redes (1200x630).
 
 Las convenciones completas están en [AGENTS.md](AGENTS.md).
 

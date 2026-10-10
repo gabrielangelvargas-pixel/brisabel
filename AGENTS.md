@@ -14,6 +14,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Estructura:**
   - `src/app/` solo rutas: páginas, layouts y route handlers delgados. Sin consultas a la base ni lógica de negocio directa.
   - `src/features/<dominio>/` todo lo de un dominio: `queries.ts` (lecturas), `actions.ts` (server actions), `schemas.ts` (zod), `components/`.
+  - `src/app/(site)/` páginas de la tienda pública (comparten el navbar); el admin tendrá su propio grupo de rutas.
+  - `src/components/layout/` navbar, menú lateral y logo del sitio.
   - `src/components/ui/` componentes visuales genéricos y reutilizables (Button, Input, Field...).
   - `src/lib/` utilidades transversales sin dominio (db, auth, storage).
   - `src/config/` configuración y variables de entorno validadas.
