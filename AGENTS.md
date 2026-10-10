@@ -22,4 +22,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Validación:** toda entrada de usuario se valida con zod en el servidor.
 - **Seguridad:** cada server action que modifica datos verifica permisos por sí misma, aunque la página ya esté protegida.
 - **Base de datos:** una única base MySQL (Hostinger), sin shadow database. No usar `prisma migrate dev` ni `db push`. Cambios de schema: `npm run db:migration -- nombre`, revisar el SQL, `npm run db:deploy` (aplicar solo con confirmación del usuario).
+- **Build:** producción compila con `next build --webpack`. Turbopack falla en el entorno de build de Hostinger (no puede lanzar el proceso Node auxiliar que procesa el CSS). En desarrollo se usa Turbopack. No quitar `--webpack` sin probar un deploy en Hostinger.
 - **Antes de commitear:** `npm run check` tiene que pasar.

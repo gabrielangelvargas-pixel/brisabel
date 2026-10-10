@@ -21,7 +21,7 @@ La app queda en http://localhost:3000.
 | Comando             | Qué hace                                  |
 | ------------------- | ----------------------------------------- |
 | `npm run dev`       | Servidor de desarrollo                    |
-| `npm run build`     | Build de producción                       |
+| `npm run build`     | Build de producción (con webpack, ver nota) |
 | `npm run start`     | Sirve el build de producción              |
 | `npm run lint`      | ESLint                                    |
 | `npm run typecheck` | Genera tipos de rutas y corre TypeScript  |
@@ -32,6 +32,8 @@ La app queda en http://localhost:3000.
 | `npm run db:studio` | Explorador visual de la base              |
 
 GitHub Actions corre lint, typecheck y build en cada push y pull request (`.github/workflows/ci.yml`).
+
+> **Nota:** el build de producción usa webpack (`next build --webpack`) porque Turbopack falla en el entorno de build de Hostinger. En desarrollo se usa Turbopack.
 
 ## Estructura
 
