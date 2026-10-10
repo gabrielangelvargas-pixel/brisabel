@@ -39,8 +39,8 @@ export function SiteMenu() {
         ref={dialogRef}
       >
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center justify-between border-b border-line px-4">
-            <SiteLogo className="h-11" onClick={close} />
+          <div className="flex h-20 items-center justify-between border-b border-line px-4">
+            <SiteLogo className="h-16" onClick={close} />
             <button
               aria-label="Cerrar menú"
               className="inline-flex size-10 items-center justify-center rounded-md transition hover:bg-brand-soft"
