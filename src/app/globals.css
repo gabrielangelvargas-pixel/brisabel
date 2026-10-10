@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de marca. Usar siempre estas clases (bg-surface, text-muted,
+ * border-line, bg-brand...) en lugar de colores hex sueltos en los componentes.
+ */
+@theme {
+  --color-canvas: #fbfaf8;
+  --color-surface: #ffffff;
+  --color-ink: #1f2320;
+  --color-muted: #69625b;
+  --color-line: #e1d8cc;
+  --color-brand: #7f4f3a;
+  --color-brand-strong: #5f3828;
+  --color-brand-soft: #f2e4db;
+  --color-accent: #98715c;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
