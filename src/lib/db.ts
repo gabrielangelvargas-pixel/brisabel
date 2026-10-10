@@ -3,6 +3,7 @@ import "server-only";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 import { getServerEnv } from "@/config/server-env";
+import { toPoolConfig } from "@/lib/db-config";
 import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
@@ -10,10 +11,9 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  // El driver de MariaDB espera el esquema mariadb:// (MySQL es compatible).
-  const url = getServerEnv().DATABASE_URL.replace(/^mysql:/, "mariadb:");
+  const adapter = new PrismaMariaDb(toPoolConfig(getServerEnv().DATABASE_URL));
 
-  return new PrismaClient({ adapter: new PrismaMariaDb(url) });
+  return new PrismaClient({ adapter });
 }
 
 // Una sola instancia por proceso (en desarrollo sobrevive al hot reload).

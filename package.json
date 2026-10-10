@@ -13,6 +13,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "check": "npm run lint && npm run typecheck",
     "postinstall": "prisma generate",
+    "admin:create": "tsx scripts/create-admin.mts",
     "db:check": "prisma db execute --file prisma/check.sql",
     "db:migration": "node scripts/new-migration.mjs",
     "db:deploy": "prisma migrate deploy",
@@ -22,6 +23,7 @@
     "@prisma/adapter-mariadb": "7.10.0",
     "@prisma/client": "7.10.0",
     "lucide-react": "1.55.0",
+    "mariadb": "3.4.5",
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -37,6 +39,7 @@
     "eslint-config-next": "16.4.0",
     "prisma": "7.10.0",
     "tailwindcss": "^4",
+    "tsx": "4.23.15",
     "typescript": "^5"
   }
 }

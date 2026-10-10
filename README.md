@@ -26,6 +26,7 @@ La app queda en http://localhost:3000.
 | `npm run lint`      | ESLint                                    |
 | `npm run typecheck` | Genera tipos de rutas y corre TypeScript  |
 | `npm run check`     | Lint + typecheck (correr antes de commit) |
+| `npm run admin:create` | Crea o actualiza un administrador (pide los datos) |
 | `npm run db:check`  | Verifica la conexión a la base            |
 | `npm run db:migration -- nombre` | Genera el SQL de una migración (no toca la base) |
 | `npm run db:deploy` | Aplica las migraciones pendientes         |
@@ -41,6 +42,7 @@ GitHub Actions corre lint, typecheck y build en cada push y pull request (`.gith
 src/
   app/                  Rutas (páginas, layouts, route handlers). Delgadas.
     (site)/             Tienda pública: comparte el navbar (SiteHeader).
+    (admin)/            Panel de administración (/admin), con su propio layout.
   components/layout/    Navbar, menú lateral y logo.
   features/<dominio>/   Lógica por dominio: queries, actions, schemas, components.
   components/ui/        Componentes visuales reutilizables.
@@ -76,11 +78,18 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 - Nunca editar la base a mano ni modificar migraciones ya aplicadas.
 - Para conectarte desde tu PC a Hostinger, habilitá **Remote MySQL** en hPanel para tu IP.
 
+## Autenticación
+
+- Solo administradores. Ingresan en `/ingresar` con **nombre de usuario o DNI** y contraseña.
+- Sesiones guardadas en la tabla `Sesion` (solo el hash del token); cookie `httpOnly` de 7 días.
+- Límite de 5 intentos fallidos cada 15 minutos por IP y por usuario.
+- Crear el primer admin: `npm run db:deploy` (si faltan las tablas) y luego `npm run admin:create`.
+
 ## Hoja de ruta
 
 1. ~~Base del proyecto~~
 2. Base de datos (Prisma + MySQL)
-3. Autenticación de administradores
+3. ~~Autenticación de administradores~~ (falta aplicar la migración)
 4. Categorías (ABM + catálogo público)
 5. Productos
 6. Carrito y pedidos

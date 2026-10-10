@@ -6,3 +6,28 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+// Administradores del sitio. Ingresan con nombre de usuario o DNI.
+model Usuario {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  nombre       String   @db.VarChar(120)
+  username     String   @unique @db.VarChar(40)
+  dni          String?  @unique @db.VarChar(12)
+  passwordHash String   @db.VarChar(255)
+  activo       Boolean  @default(true)
+  sesiones     Sesion[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Sesiones de login. Solo se guarda el hash SHA-256 del token de la cookie.
+model Sesion {
+  id        String   @id @default(cuid()) @db.VarChar(30)
+  tokenHash String   @unique @db.Char(64)
+  usuarioId String   @db.VarChar(30)
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([usuarioId])
+}

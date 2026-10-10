@@ -6,11 +6,10 @@ import { cn } from "@/lib/cn";
 
 type SiteLogoProps = {
   className?: string;
-  eager?: boolean;
   onClick?: () => void;
 };
 
-export function SiteLogo({ className, eager = false, onClick }: SiteLogoProps) {
+export function SiteLogo({ className, onClick }: SiteLogoProps) {
   return (
     <Link
       aria-label={`${siteConfig.name} - Inicio`}
@@ -22,7 +21,7 @@ export function SiteLogo({ className, eager = false, onClick }: SiteLogoProps) {
         alt={siteConfig.name}
         className="h-full w-auto"
         height={siteConfig.logo.height}
-        loading={eager ? "eager" : "lazy"}
+        loading="eager"
         src={siteConfig.logo.src}
         width={siteConfig.logo.width}
       />
