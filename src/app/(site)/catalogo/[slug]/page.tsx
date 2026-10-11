@@ -99,54 +99,62 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
   return (
     <>
       <section className="bg-sand">
-        <div className="mx-auto grid w-full max-w-7xl items-center gap-8 px-5 py-10 sm:py-14 md:grid-cols-[1fr_1.1fr] lg:gap-14">
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-5 px-5 py-5 sm:py-8 md:grid-cols-[1fr_1.1fr] md:gap-10">
           <div>
-            <nav aria-label="Migas de pan">
-              <ol className="flex flex-wrap items-center gap-1 text-sm text-muted">
-                <li>
-                  <Link className="hover:text-accent" href="/catalogo">
-                    Catálogo
-                  </Link>
-                </li>
-                {migas.map((miga) => (
-                  <li className="flex items-center gap-1" key={miga.id}>
-                    <ChevronRight className="size-3.5" />
-                    <Link className="hover:text-accent" href={`/catalogo/${miga.slug}`}>
-                      {miga.nombre}
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </nav>
-            <h1 className="mt-4 font-display text-4xl leading-tight font-semibold text-brand sm:text-5xl">
-              {categoria.nombre}
-            </h1>
-            {categoria.descripcion ? (
-              <p className="mt-4 max-w-xl text-lg leading-8 text-muted">{categoria.descripcion}</p>
+            {/* Migas: solo las categorías superiores (en una principal no hay). */}
+            {migas.length > 0 ? (
+              <nav aria-label="Migas de pan" className="mb-2">
+                <ol className="flex flex-wrap items-center gap-1 text-sm text-muted">
+                  {migas.map((miga, index) => (
+                    <li className="flex items-center gap-1" key={miga.id}>
+                      {index > 0 ? <ChevronRight className="size-3.5" /> : null}
+                      <Link className="hover:text-accent" href={`/catalogo/${miga.slug}`}>
+                        {miga.nombre}
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
             ) : null}
-            <ShareButton className="mt-6" title={tituloCompartir(categoria.nombre)} />
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="font-display text-2xl leading-tight font-semibold text-brand sm:text-3xl lg:text-4xl">
+                {categoria.nombre}
+              </h1>
+              {/* Sin imagen, el botón Compartir va junto al título. */}
+              {!imagenUrl ? <ShareButton title={tituloCompartir(categoria.nombre)} variant="icon" /> : null}
+            </div>
+            {categoria.descripcion ? (
+              <p className="mt-2 max-w-xl leading-7 text-muted sm:text-lg">{categoria.descripcion}</p>
+            ) : null}
           </div>
 
           {imagenUrl ? (
-            <Image
-              alt={categoria.nombre}
-              className="w-full rounded-[2rem] object-cover shadow-xl shadow-brand/10 ring-1 ring-black/5"
-              height={IMAGEN_ALTO}
-              loading="eager"
-              src={imagenUrl}
-              style={IMAGEN_PROPORCION}
-              unoptimized
-              width={IMAGEN_ANCHO}
-            />
+            <div className="relative">
+              <Image
+                alt={categoria.nombre}
+                className="w-full rounded-2xl object-cover shadow-xl shadow-brand/10 ring-1 ring-black/5 sm:rounded-[2rem]"
+                height={IMAGEN_ALTO}
+                loading="eager"
+                src={imagenUrl}
+                style={IMAGEN_PROPORCION}
+                unoptimized
+                width={IMAGEN_ANCHO}
+              />
+              <ShareButton
+                className="absolute right-3 bottom-3"
+                title={tituloCompartir(categoria.nombre)}
+                variant="icon"
+              />
+            </div>
           ) : null}
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-5 py-12 sm:py-16">
+      <section className="mx-auto w-full max-w-7xl px-5 py-6 sm:py-10">
         {hijas.length > 0 ? (
           <>
-            <h2 className="font-display text-2xl font-semibold text-brand sm:text-3xl">Explorá {categoria.nombre}</h2>
-            <div className="mt-8">
+            <h2 className="font-display text-xl font-semibold text-brand sm:text-2xl">Explorá {categoria.nombre}</h2>
+            <div className="mt-5">
               <CategoriaGrid categorias={hijas} />
             </div>
           </>
