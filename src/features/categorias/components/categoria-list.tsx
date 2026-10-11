@@ -1,15 +1,17 @@
-import { ChevronDown, ChevronUp, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, EyeOff, ImageOff, Pencil, Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { eliminarCategoriaAction, moverCategoriaAction } from "@/features/categorias/actions";
-import { MAX_NIVEL } from "@/features/categorias/tree";
+import { categoriaImagenUrl, MAX_NIVEL } from "@/features/categorias/tree";
 import { cn } from "@/lib/cn";
 
 type CategoriaFila = {
   id: number;
   nombre: string;
   slug: string;
+  imagen: string | null;
   activa: boolean;
   nivel: number;
   parentId: number | null;
@@ -37,6 +39,7 @@ export function CategoriaList({ categorias }: { categorias: CategoriaFila[] }) {
         const posicion = hermanas.findIndex((c) => c.id === categoria.id);
         const puedeTenerHijas = categoria.nivel < MAX_NIVEL;
         const puedeEliminar = categoria._count.hijas === 0;
+        const imagenUrl = categoriaImagenUrl(categoria.imagen);
 
         return (
           <li
@@ -44,6 +47,23 @@ export function CategoriaList({ categorias }: { categorias: CategoriaFila[] }) {
             key={categoria.id}
             style={{ paddingLeft: `${0.75 + categoria.nivel * 1.5}rem` }}
           >
+            {imagenUrl ? (
+              <Image
+                alt=""
+                className="aspect-[1200/630] w-16 shrink-0 rounded border border-line object-cover"
+                height={630}
+                src={imagenUrl}
+                unoptimized
+                width={1200}
+              />
+            ) : (
+              <span
+                className="inline-flex aspect-[1200/630] w-16 shrink-0 items-center justify-center rounded border border-dashed border-line text-muted"
+                title="Sin imagen"
+              >
+                <ImageOff className="size-4" />
+              </span>
+            )}
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-2 truncate font-medium">
                 {categoria.nivel > 0 ? <span className="text-muted">›</span> : null}

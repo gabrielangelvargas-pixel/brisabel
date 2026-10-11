@@ -8,6 +8,7 @@ const categoriaSelect = {
   nombre: true,
   slug: true,
   descripcion: true,
+  imagen: true,
   orden: true,
   activa: true,
   parentId: true,

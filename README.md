@@ -67,6 +67,7 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 | --------------------- | --------------------------------- |
 | `NEXT_PUBLIC_APP_URL` | URL pública de la app, sin barra final |
 | `DATABASE_URL`        | Conexión MySQL: `mysql://USUARIO:PASSWORD@HOST:3306/BASE?connection_limit=5` |
+| `BRISABEL_UPLOADS_DIR` | Carpeta persistente de imágenes subidas. En Hostinger: `/home/u605057087/domains/brisabel.com.ar/imagenes`. En local se puede omitir (usa `../BrisaBel-uploads`). |
 
 ## Base de datos
 
@@ -101,6 +102,7 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 - Slug único global → URLs cortas (`/catalogo/aros-de-plata`).
 - No se puede eliminar una categoría con subcategorías. Los productos irán solo en categorías sin hijas (se aplicará al crear la tabla de productos).
 - Lógica pura del árbol en `src/features/categorias/tree.ts`.
+- Imagen opcional: se recorta a **1200×630 WebP** (tarjetas y vista previa al compartir en redes) y se guarda en `BRISABEL_UPLOADS_DIR/categorias` con nombre único por versión. Se sirve en `/media/categorias/<archivo>` con caché de un año.
 
 ## Hoja de ruta
 

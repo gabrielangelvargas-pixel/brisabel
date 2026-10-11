@@ -52,6 +52,8 @@ model Categoria {
   nombre      String      @db.VarChar(80)
   slug        String      @unique @db.VarChar(100)
   descripcion String?     @db.VarChar(300)
+  // Archivo WebP 1200x630 (tarjetas y vista previa en redes), en BRISABEL_UPLOADS_DIR/categorias.
+  imagen      String?     @db.VarChar(120)
   orden       Int         @default(0)
   activa      Boolean     @default(true)
   parentId    Int?

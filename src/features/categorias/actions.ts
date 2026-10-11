@@ -5,12 +5,14 @@ import { z } from "zod";
 
 import { categoriaIdSchema, parseCategoriaForm, type CategoriaInput } from "@/features/categorias/schemas";
 import { buildRuta, isInSubtree, MAX_NIVEL } from "@/features/categorias/tree";
+import { getArchivo, nombreArchivoCategoria, procesarImagenCategoria } from "@/features/categorias/imagen";
 import { getAlturaSubarbol } from "@/features/categorias/queries";
 import { Prisma } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
+import { deleteFile, saveFile } from "@/lib/storage";
 
-type CategoriaField = "nombre" | "slug" | "descripcion" | "parentId";
+type CategoriaField = "nombre" | "slug" | "descripcion" | "parentId" | "imagen";
 
 export type CategoriaFormValues = {
   nombre: string;
@@ -108,6 +110,16 @@ export async function crearCategoriaAction(
     return { values, fieldErrors: { parentId: error } };
   }
 
+  // La imagen se procesa antes de tocar la base: si es inválida, no se guarda nada.
+  const archivo = getArchivo(formData, "imagen");
+  const imagen = archivo ? await procesarImagenCategoria(archivo) : null;
+
+  if (imagen && !imagen.ok) {
+    return { values, fieldErrors: { imagen: imagen.error } };
+  }
+
+  let archivoGuardado: string | null = null;
+
   try {
     await getDb().$transaction(async (tx) => {
       const creada = await tx.categoria.create({
@@ -121,12 +133,19 @@ export async function crearCategoriaAction(
         select: { id: true },
       });
 
+      if (imagen?.ok) {
+        archivoGuardado = nombreArchivoCategoria(creada.id);
+        await saveFile("categorias", archivoGuardado, imagen.data);
+      }
+
       await tx.categoria.update({
         where: { id: creada.id },
-        data: { ruta: buildRuta(padre?.ruta ?? null, creada.id) },
+        data: { ruta: buildRuta(padre?.ruta ?? null, creada.id), imagen: archivoGuardado },
       });
     });
   } catch (err) {
+    await deleteFile("categorias", archivoGuardado);
+
     if (isSlugDuplicado(err)) {
       return { values, fieldErrors: { slug: "Ya existe una categoría con ese slug." } };
     }
@@ -156,7 +175,7 @@ export async function editarCategoriaAction(
   const data = parsed.data;
   const actual = await getDb().categoria.findUnique({
     where: { id },
-    select: { id: true, parentId: true, ruta: true, nivel: true },
+    select: { id: true, parentId: true, ruta: true, nivel: true, imagen: true },
   });
 
   if (!actual) {
@@ -192,12 +211,29 @@ export async function editarCategoriaAction(
     nuevaUbicacion = { parentId: padre?.id ?? null, ruta: buildRuta(padre?.ruta ?? null, id), nivel };
   }
 
+  const archivo = getArchivo(formData, "imagen");
+  const imagen = archivo ? await procesarImagenCategoria(archivo) : null;
+
+  if (imagen && !imagen.ok) {
+    return { values, fieldErrors: { imagen: imagen.error } };
+  }
+
+  // Imagen nueva > quitar imagen > dejar la actual.
+  const quitarImagen = !imagen && formData.get("quitarImagen") === "on";
+  const archivoNuevo = imagen?.ok ? nombreArchivoCategoria(id) : null;
+  const cambiaImagen = Boolean(archivoNuevo) || quitarImagen;
+
   try {
     await getDb().$transaction(async (tx) => {
+      if (archivoNuevo && imagen?.ok) {
+        await saveFile("categorias", archivoNuevo, imagen.data);
+      }
+
       await tx.categoria.update({
         where: { id },
         data: {
           ...datosEditables(data),
+          ...(cambiaImagen ? { imagen: archivoNuevo } : {}),
           ...(nuevaUbicacion
             ? { ...nuevaUbicacion, orden: await siguienteOrden(tx, nuevaUbicacion.parentId) }
             : {}),
@@ -209,10 +245,17 @@ export async function editarCategoriaAction(
       }
     });
   } catch (err) {
+    await deleteFile("categorias", archivoNuevo);
+
     if (isSlugDuplicado(err)) {
       return { values, fieldErrors: { slug: "Ya existe una categoría con ese slug." } };
     }
     throw err;
+  }
+
+  // Recién con los cambios guardados se borra la imagen reemplazada.
+  if (cambiaImagen) {
+    await deleteFile("categorias", actual.imagen);
   }
 
   redirect(`${listaUrl}?ok=actualizada`);
@@ -258,7 +301,7 @@ export async function eliminarCategoriaAction(formData: FormData) {
   const id = categoriaIdSchema.parse(formData.get("id"));
   const categoria = await getDb().categoria.findUnique({
     where: { id },
-    select: { _count: { select: { hijas: true } } },
+    select: { imagen: true, _count: { select: { hijas: true } } },
   });
 
   if (!categoria) {
@@ -270,6 +313,7 @@ export async function eliminarCategoriaAction(formData: FormData) {
   }
 
   await getDb().categoria.delete({ where: { id } });
+  await deleteFile("categorias", categoria.imagen);
   redirect(`${listaUrl}?ok=eliminada`);
 }
 

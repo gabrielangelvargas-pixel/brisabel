@@ -6,6 +6,9 @@ const serverEnvSchema = z.object({
   DATABASE_URL: z
     .string()
     .regex(/^mysql:\/\//, "DATABASE_URL debe empezar con mysql://"),
+  // Carpeta persistente para archivos subidos (fuera del deploy, que se
+  // reemplaza en cada versión). Por defecto, una carpeta hermana del proyecto.
+  BRISABEL_UPLOADS_DIR: z.string().min(1).optional(),
 });
 
 type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -17,6 +20,7 @@ let cached: ServerEnv | undefined;
 export function getServerEnv(): ServerEnv {
   cached ??= serverEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
+    BRISABEL_UPLOADS_DIR: process.env.BRISABEL_UPLOADS_DIR || undefined,
   });
 
   return cached;

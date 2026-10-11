@@ -14,6 +14,11 @@ export type CategoriaNodo = {
   ruta: string;
 };
 
+// URL pública de la imagen de una categoría (servida por /media/categorias).
+export function categoriaImagenUrl(imagen: string | null) {
+  return imagen ? `/media/categorias/${imagen}` : null;
+}
+
 export type CategoriaArbol<T extends CategoriaNodo = CategoriaNodo> = T & {
   hijas: CategoriaArbol<T>[];
 };
