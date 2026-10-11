@@ -112,7 +112,7 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 - Solo van en categorías **sin subcategorías**: el panel solo ofrece esas, y una categoría con productos no puede recibir subcategorías ni eliminarse.
 - Panel en `/admin/productos` (buscar por nombre o SKU, filtrar por categoría). Los precios se escriben como en Argentina: `12.500` o `12.500,50`.
 - En la tienda, la página de una categoría sin subcategorías muestra sus productos activos (caché con etiqueta `productos`).
-- **Modelos (variantes):** productos que son el mismo diseño en distinto color, tamaño o largo se agrupan en un `Modelo` (nombre + "varía por"). Cada producto guarda su `variante` y `ordenVariante`. En la tienda se muestran en una sola tarjeta con botones de variante (cambian foto y precio; antes de elegir, "Desde $X" si los precios difieren).
+- **Modelos (variantes):** productos que son el mismo diseño en distinto color, tamaño o largo se agrupan en un `Modelo` (nombre + "varía por"). Cada producto guarda su `variante` y `ordenVariante`. En la tienda se muestran en una sola tarjeta con botones de variante (arranca con la primera según el orden; los botones y la flecha junto al precio cambian foto y precio).
 - Se agrupan desde `/admin/productos` (casillas + "Agrupar seleccionados"); se editan o desagrupan en `/admin/productos/modelos/<id>`. Todos los productos de un modelo son de la misma categoría; un modelo que queda con un solo producto se disuelve.
 
 ## Hoja de ruta

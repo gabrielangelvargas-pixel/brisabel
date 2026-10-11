@@ -1,8 +1,9 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-import { precioDelModelo, type TarjetaTienda } from "@/features/productos/agrupar-tienda";
+import type { TarjetaTienda } from "@/features/productos/agrupar-tienda";
 import { ProductoCard } from "@/features/productos/components/producto-card";
 import { productoImagenUrl } from "@/features/productos/imagen-size";
 import { cn } from "@/lib/cn";
@@ -10,36 +11,45 @@ import { formatPrecio } from "@/lib/format";
 
 type Modelo = Extract<TarjetaTienda, { tipo: "modelo" }>;
 
-// Tarjeta de un modelo con variantes: botones para elegir la variante, que
-// cambian foto y precio. Antes de elegir: foto de la primera y "Desde $X"
-// si los precios difieren.
+// Tarjeta de un modelo con variantes. Arranca con la primera variante (según
+// el orden cargado) elegida; los botones y la flecha junto al precio cambian
+// de variante, y con ella la foto y el precio.
 export function ModeloCard({ modelo }: { modelo: Modelo }) {
-  const [elegidaId, setElegidaId] = useState<number | null>(null);
-  const elegida = modelo.variantes.find((v) => v.id === elegidaId) ?? null;
-  const mostrada = elegida ?? modelo.variantes.find((v) => v.imagen) ?? modelo.variantes[0];
-  const { minimo, desde } = precioDelModelo(modelo.variantes);
+  const [indice, setIndice] = useState(0);
+  const variantes = modelo.variantes;
+  const elegida = variantes[indice];
+  const siguiente = variantes[(indice + 1) % variantes.length];
 
-  const precio = elegida ? (
-    formatPrecio(elegida.precioVenta)
-  ) : desde ? (
-    <>
-      <span className="text-xs font-semibold tracking-wide uppercase opacity-70">Desde </span>
-      {formatPrecio(minimo)}
-    </>
-  ) : (
-    formatPrecio(minimo)
+  const precio = (
+    <span className="flex items-center justify-between gap-2">
+      {formatPrecio(elegida.precioVenta)}
+      <button
+        aria-label={`Ver siguiente ${modelo.variacion.toLowerCase()}: ${siguiente.variante}`}
+        className={cn(
+          "inline-flex size-8 shrink-0 items-center justify-center rounded-full border transition",
+          modelo.destacado
+            ? "border-gold/40 text-gold-strong hover:bg-gold/15"
+            : "border-line text-brand hover:border-brand/40 hover:bg-brand-soft",
+        )}
+        onClick={() => setIndice((i) => (i + 1) % variantes.length)}
+        title={`Siguiente: ${siguiente.variante}`}
+        type="button"
+      >
+        <ChevronRight className="size-4" />
+      </button>
+    </span>
   );
 
   return (
     <ProductoCard
       destacado={modelo.destacado}
-      imagenUrl={productoImagenUrl(mostrada.imagen)}
+      imagenUrl={productoImagenUrl(elegida.imagen)}
       nombre={modelo.nombre}
       precio={precio}
     >
       <div aria-label={modelo.variacion} className="flex flex-wrap gap-1.5" role="group">
-        {modelo.variantes.map((variante) => {
-          const activa = variante.id === elegidaId;
+        {variantes.map((variante, i) => {
+          const activa = i === indice;
 
           return (
             <button
@@ -53,7 +63,7 @@ export function ModeloCard({ modelo }: { modelo: Modelo }) {
                   : "border-line bg-surface text-ink hover:border-brand/40",
               )}
               key={variante.id}
-              onClick={() => setElegidaId(activa ? null : variante.id)}
+              onClick={() => setIndice(i)}
               title={`${modelo.variacion}: ${variante.variante}`}
               type="button"
             >

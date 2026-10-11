@@ -52,11 +52,3 @@ export function agruparParaTienda(productos: ProductoPublico[]): TarjetaTienda[]
   // como producto suelto.
   return tarjetas.map((t) => (t.tipo === "modelo" && t.variantes.length === 1 ? { tipo: "producto", producto: t.variantes[0] } : t));
 }
-
-// Precio a mostrar antes de elegir variante: el mínimo, y si es "desde".
-export function precioDelModelo(variantes: ProductoPublico[]) {
-  const precios = variantes.map((v) => Number(v.precioVenta));
-  const minimo = Math.min(...precios);
-
-  return { minimo, desde: precios.some((p) => p !== minimo) };
-}
