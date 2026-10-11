@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import { productoImagenUrl } from "@/features/productos/imagen-size";
 import type { ProductoPublico } from "@/features/productos/public-queries";
+import { cn } from "@/lib/cn";
 import { formatPrecio } from "@/lib/format";
 
 // Grilla de productos de la tienda. Todavía sin enlace: la página de
@@ -21,9 +22,17 @@ export function ProductoGrid({ productos }: { productos: ProductoPublico[] }) {
 
 function ProductoCard({ producto }: { producto: ProductoPublico }) {
   const imagenUrl = productoImagenUrl(producto.imagen);
+  const destacado = producto.destacado;
 
-  return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-brand/15 hover:shadow-lg hover:shadow-brand/10">
+  const tarjeta = (
+    <article
+      className={cn(
+        "group flex h-full flex-col overflow-hidden bg-surface transition duration-300 hover:-translate-y-0.5",
+        destacado
+          ? "rounded-[calc(1rem-2px)]"
+          : "rounded-2xl border border-line shadow-sm hover:border-brand/15 hover:shadow-lg hover:shadow-brand/10",
+      )}
+    >
       <div className="relative aspect-square overflow-hidden bg-white">
         {imagenUrl ? (
           <Image
@@ -40,23 +49,48 @@ function ProductoCard({ producto }: { producto: ProductoPublico }) {
           </div>
         )}
 
-        {producto.destacado ? (
-          <span className="absolute top-2 left-2 inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[0.7rem] font-semibold text-white shadow-sm">
-            <Sparkles className="size-3" />
-            Destacado
+        {destacado ? (
+          <span
+            aria-label="Destacado"
+            className="absolute top-2 left-2 inline-flex size-8 items-center justify-center rounded-full bg-accent text-white shadow-md ring-2 ring-white"
+            role="img"
+            title="Destacado"
+          >
+            <Sparkles className="size-4" />
           </span>
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 border-t border-line/60 p-3 sm:p-4">
+      <div
+        className={cn(
+          "flex flex-1 flex-col gap-2 border-t p-3 sm:p-4",
+          destacado ? "border-heart/20 bg-accent-soft/50" : "border-line/60",
+        )}
+      >
         {/* Alto fijo de 2 líneas: los precios quedan alineados en la fila. */}
         <h3 className="line-clamp-2 min-h-[2.5rem] text-sm leading-5 font-medium text-ink sm:min-h-[3rem] sm:text-base sm:leading-6">
           {producto.nombre}
         </h3>
-        <p className="mt-auto text-lg font-bold text-brand tabular-nums sm:text-xl">
+        <p
+          className={cn(
+            "mt-auto text-lg font-bold tabular-nums sm:text-xl",
+            destacado ? "text-accent" : "text-brand",
+          )}
+        >
           {formatPrecio(producto.precioVenta)}
         </p>
       </div>
     </article>
+  );
+
+  if (!destacado) {
+    return tarjeta;
+  }
+
+  // Destacado: borde en degradé con los colores del logo y sombra rosada.
+  return (
+    <div className="h-full rounded-2xl bg-gradient-to-br from-heart via-heart/70 to-leaf p-[2px] shadow-md shadow-heart/20 transition duration-300 hover:shadow-lg hover:shadow-heart/30">
+      {tarjeta}
+    </div>
   );
 }
