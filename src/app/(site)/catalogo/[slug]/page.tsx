@@ -21,9 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Categoría no encontrada" };
   }
 
-  const { categoria } = resultado;
-  const descripcion =
-    categoria.descripcion ?? `${categoria.nombre} en ${siteConfig.name}: ${siteConfig.tagline.toLowerCase()}.`;
+  const { categoria, hijas } = resultado;
+  // Ej.: "Plata 900 / 925 de Brisabel: regalos que inspiran"
+  const tituloCompartir = `${categoria.nombre} de ${siteConfig.name}: ${siteConfig.tagline.toLowerCase()}`;
+  const descripcion = categoria.descripcion ?? descripcionAutomatica(hijas.map((hija) => hija.nombre));
   const imagenUrl = categoriaImagenUrl(categoria.imagen);
   const imagen = imagenUrl
     ? { url: imagenUrl, width: IMAGEN_ANCHO, height: IMAGEN_ALTO, alt: categoria.nombre }
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       type: "website",
       url,
-      title: `${categoria.nombre} | ${siteConfig.name}`,
+      title: tituloCompartir,
       description: descripcion,
       siteName: siteConfig.name,
       locale: siteConfig.locale,
@@ -45,11 +46,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${categoria.nombre} | ${siteConfig.name}`,
+      title: tituloCompartir,
       description: descripcion,
       images: [imagen.url],
     },
   };
+}
+
+// Sin descripción cargada: no repetir el título. Si hay subcategorías se
+// mencionan ("Encontrá Aros, Anillos y Cadenas…"); si no, la del sitio.
+function descripcionAutomatica(subcategorias: string[]) {
+  if (subcategorias.length === 0) {
+    return siteConfig.description;
+  }
+
+  const lista =
+    subcategorias.length === 1
+      ? subcategorias[0]
+      : `${subcategorias.slice(0, -1).join(", ")} y ${subcategorias.at(-1)}`;
+
+  return `Encontrá ${lista}. ${siteConfig.description}`;
 }
 
 export default function CategoriaPage({ params }: Props) {
