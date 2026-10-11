@@ -45,6 +45,7 @@ src/
     (site)/             Tienda pública: comparte el navbar (SiteHeader).
     (admin)/            Panel de administración (/admin), con su propio layout.
   components/layout/    Navbar, menú lateral y logo.
+  components/ui/        Field, Button, FormAlert y otros componentes reutilizables.
   features/<dominio>/   Lógica por dominio: queries, actions, schemas, components.
   components/ui/        Componentes visuales reutilizables.
   lib/                  Utilidades transversales (db, auth, storage).
@@ -82,9 +83,10 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 ## Autenticación
 
 - Roles en la tabla `Rol`: `ADMIN` (Administrador) y `CLIENTE` (Cliente), creados por la migración `roles`.
-- Por ahora solo ingresan usuarios con rol `ADMIN`. Ingresan en `/ingresar` con **nombre de usuario o DNI** y contraseña.
+- `/ingresar` tiene dos fichas: **Ingresar** (usuario o DNI + contraseña) y **Crear cuenta** (crea un usuario con rol `CLIENTE` y deja la sesión iniciada).
+- Al ingresar, el admin va a `/admin` y el cliente al inicio. El ícono de cuenta del navbar lleva a `/admin` o a `/perfil` según el rol.
 - Sesiones guardadas en la tabla `Sesion` (solo el hash del token); cookie `httpOnly` de 7 días.
-- Límite de 5 intentos fallidos cada 15 minutos por IP y por usuario.
+- Límites: 5 logins fallidos cada 15 minutos por IP y por usuario; 5 cuentas nuevas cada 15 minutos por IP.
 - Crear el primer admin: `npm run db:deploy` (si faltan las tablas) y luego `npm run admin:create`.
   Sin acceso remoto a MySQL: `npm run admin:create -- --sql` y ejecutar el INSERT en phpMyAdmin.
 - Si una migración se aplica a mano en phpMyAdmin, hay que registrarla en `_prisma_migrations`; si no, `db:deploy` la intentará aplicar de nuevo.

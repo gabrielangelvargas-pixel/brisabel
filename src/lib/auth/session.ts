@@ -90,14 +90,21 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   return { id, nombre, username, rol: rol.codigo as RolCodigo };
 });
 
-// Para páginas y server actions del panel: sin sesión redirige al login;
-// con sesión de otro rol, al inicio.
-export async function requireAdmin() {
+// Para páginas y server actions que requieren sesión: si no hay, al login.
+export async function requireUser() {
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/ingresar");
   }
+
+  return user;
+}
+
+// Para páginas y server actions del panel: sin sesión redirige al login;
+// con sesión de otro rol, al inicio.
+export async function requireAdmin() {
+  const user = await requireUser();
 
   if (user.rol !== ROLES.ADMIN) {
     redirect("/");

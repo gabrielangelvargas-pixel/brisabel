@@ -21,6 +21,24 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(200),
 });
 
+export const registroSchema = z
+  .object({
+    nombre: z.string().trim().min(2, "Ingresá tu nombre.").max(120),
+    username: usernameSchema,
+    // DNI opcional: vacío se toma como no informado.
+    dni: z
+      .string()
+      .trim()
+      .transform((value) => value || undefined)
+      .pipe(dniSchema.optional()),
+    password: passwordSchema,
+    confirmacion: z.string(),
+  })
+  .refine((data) => data.password === data.confirmacion, {
+    message: "Las contraseñas no coinciden.",
+    path: ["confirmacion"],
+  });
+
 // Un identificador solo con dígitos (y puntos opcionales) es un DNI.
 export function parseIdentifier(identificador: string) {
   const dni = dniSchema.safeParse(identificador);

@@ -1,39 +1,40 @@
 import "server-only";
 
-// Límite de intentos de login fallidos, en memoria del proceso. Alcanza para
-// un único servidor (Hostinger); se reinicia si la app se reinicia.
-const maxFailures = 5;
+// Límite de intentos por clave (ej. "login:ip:1.2.3.4"), en memoria del
+// proceso. Alcanza para un único servidor (Hostinger); se reinicia si la app
+// se reinicia.
+const maxAttempts = 5;
 const windowMs = 1000 * 60 * 15;
 
-const failures = new Map<string, { count: number; resetAt: number }>();
+const attempts = new Map<string, { count: number; resetAt: number }>();
 
-export function isLoginBlocked(key: string) {
-  const entry = failures.get(key);
+export function isRateLimited(key: string) {
+  const entry = attempts.get(key);
 
   if (!entry) {
     return false;
   }
 
   if (entry.resetAt <= Date.now()) {
-    failures.delete(key);
+    attempts.delete(key);
     return false;
   }
 
-  return entry.count >= maxFailures;
+  return entry.count >= maxAttempts;
 }
 
-export function registerLoginFailure(key: string) {
+export function registerAttempt(key: string) {
   const now = Date.now();
-  const entry = failures.get(key);
+  const entry = attempts.get(key);
 
   if (!entry || entry.resetAt <= now) {
-    failures.set(key, { count: 1, resetAt: now + windowMs });
+    attempts.set(key, { count: 1, resetAt: now + windowMs });
     return;
   }
 
   entry.count += 1;
 }
 
-export function clearLoginFailures(key: string) {
-  failures.delete(key);
+export function clearAttempts(key: string) {
+  attempts.delete(key);
 }

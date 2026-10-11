@@ -2,6 +2,7 @@ import { LogIn, ShoppingBag, UserRound } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { ROLES } from "@/lib/auth/roles";
 import { getCurrentUser } from "@/lib/auth/session";
 
 const iconLinkClass =
@@ -37,7 +38,7 @@ async function AccountLink() {
     <Link
       aria-label={`Mi cuenta (${user.nombre})`}
       className={iconLinkClass}
-      href="/admin"
+      href={user.rol === ROLES.ADMIN ? "/admin" : "/perfil"}
       title={user.nombre}
     >
       <UserRound className="size-6" />
