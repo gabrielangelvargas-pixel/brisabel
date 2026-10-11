@@ -43,7 +43,7 @@ GitHub Actions corre lint, typecheck y build en cada push y pull request (`.gith
 src/
   app/                  Rutas (páginas, layouts, route handlers). Delgadas.
     (site)/             Tienda pública: comparte el navbar (SiteHeader).
-    (admin)/            Panel de administración (/admin), con su propio layout.
+    (admin)/            Panel de administración (/admin): mismo navbar, páginas solo para admins.
   components/layout/    Navbar, menú lateral y logo.
   components/ui/        Field, Button, FormAlert y otros componentes reutilizables.
   features/<dominio>/   Lógica por dominio: queries, actions, schemas, components.

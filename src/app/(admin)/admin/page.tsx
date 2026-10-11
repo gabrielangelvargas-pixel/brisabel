@@ -17,7 +17,10 @@ async function AdminHome() {
 
   return (
     <>
-      <h1 className="text-3xl font-semibold">Hola, {user.nombre}</h1>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+        Panel de administración
+      </p>
+      <h1 className="mt-2 text-3xl font-semibold">Hola, {user.nombre}</h1>
       <p className="mt-2 text-muted">
         Desde acá vas a administrar la tienda. Las secciones se agregan a medida
         que las construyamos.
