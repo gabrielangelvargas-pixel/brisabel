@@ -12,7 +12,7 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { dniSchema, passwordSchema, usernameSchema } from "../src/features/auth/schemas";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { hashPassword } from "../src/lib/auth/password";
-import { toPoolConfig } from "../src/lib/db-config";
+import { adapterOptions, toPoolConfig } from "../src/lib/db-config";
 import { ROLES } from "../src/lib/auth/roles";
 
 nextEnv.loadEnvConfig(process.cwd());
@@ -72,7 +72,7 @@ if (sqlOnly) {
 }
 
 const db = new PrismaClient({
-  adapter: new PrismaMariaDb(toPoolConfig(databaseUrl!)),
+  adapter: new PrismaMariaDb(toPoolConfig(databaseUrl!), adapterOptions),
 });
 
 try {

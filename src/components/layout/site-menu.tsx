@@ -3,7 +3,7 @@
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
+import { Suspense, useRef } from "react";
 
 import { SiteLogo } from "@/components/layout/site-logo";
 import { mainNavigation } from "@/config/navigation";
@@ -13,7 +13,6 @@ import { cn } from "@/lib/cn";
 // cierre con Escape y fondo inerte sin código extra.
 export function SiteMenu() {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const pathname = usePathname();
 
   const open = () => dialogRef.current?.showModal();
   const close = () => dialogRef.current?.close();
@@ -52,30 +51,44 @@ export function SiteMenu() {
           </div>
 
           <nav className="flex-1 overflow-y-auto p-3">
-            <ul className="grid gap-1">
-              {mainNavigation.map((item) => {
-                const isActive = pathname === item.href;
-
-                return (
-                  <li key={item.href}>
-                    <Link
-                      aria-current={isActive ? "page" : undefined}
-                      className={cn(
-                        "block rounded-md px-3 py-2.5 text-base font-medium transition hover:bg-brand-soft",
-                        isActive && "bg-brand-soft text-brand",
-                      )}
-                      href={item.href}
-                      onClick={close}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            {/* La URL actual solo se conoce en el request (rutas dinámicas):
+                mientras tanto se muestran los enlaces sin resaltar. */}
+            <Suspense fallback={<MenuLinks onNavigate={close} />}>
+              <ActiveMenuLinks onNavigate={close} />
+            </Suspense>
           </nav>
         </div>
       </dialog>
     </>
+  );
+}
+
+function ActiveMenuLinks({ onNavigate }: { onNavigate: () => void }) {
+  return <MenuLinks activeHref={usePathname()} onNavigate={onNavigate} />;
+}
+
+function MenuLinks({ activeHref, onNavigate }: { activeHref?: string; onNavigate: () => void }) {
+  return (
+    <ul className="grid gap-1">
+      {mainNavigation.map((item) => {
+        const isActive = activeHref === item.href;
+
+        return (
+          <li key={item.href}>
+            <Link
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                "block rounded-md px-3 py-2.5 text-base font-medium transition hover:bg-brand-soft",
+                isActive && "bg-brand-soft text-brand",
+              )}
+              href={item.href}
+              onClick={onNavigate}
+            >
+              {item.label}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

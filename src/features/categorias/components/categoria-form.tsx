@@ -28,11 +28,19 @@ const initialState: CategoriaFormState = {};
 export function CategoriaForm({ action, padres, defaultValues, submitLabel }: CategoriaFormProps) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const errors = state.fieldErrors ?? {};
+  // Tras un error se muestran los valores enviados; si no, los iniciales.
+  const values = state.values ?? {
+    nombre: defaultValues?.nombre ?? "",
+    slug: defaultValues?.slug ?? "",
+    descripcion: defaultValues?.descripcion ?? "",
+    parentId: defaultValues?.parentId?.toString() ?? "",
+    activa: defaultValues?.activa ?? true,
+  };
 
   return (
-    <form action={formAction} className="grid gap-5">
+    <form action={formAction} className="grid gap-5" key={JSON.stringify(values)}>
       <Field
-        defaultValue={defaultValues?.nombre}
+        defaultValue={values.nombre}
         error={errors.nombre}
         label="Nombre"
         maxLength={80}
@@ -40,7 +48,7 @@ export function CategoriaForm({ action, padres, defaultValues, submitLabel }: Ca
         required
       />
       <Field
-        defaultValue={defaultValues?.slug}
+        defaultValue={values.slug}
         error={errors.slug}
         hint="Se usa en la dirección web (/catalogo/aros-de-plata). Si lo dejás vacío, se genera del nombre."
         label="Slug"
@@ -48,7 +56,7 @@ export function CategoriaForm({ action, padres, defaultValues, submitLabel }: Ca
         name="slug"
       />
       <SelectField
-        defaultValue={defaultValues?.parentId ?? ""}
+        defaultValue={values.parentId}
         error={errors.parentId}
         hint="Hasta 3 niveles: categoría › subcategoría › sub-subcategoría."
         label="Categoría padre"
@@ -62,7 +70,7 @@ export function CategoriaForm({ action, padres, defaultValues, submitLabel }: Ca
         ))}
       </SelectField>
       <TextareaField
-        defaultValue={defaultValues?.descripcion ?? ""}
+        defaultValue={values.descripcion}
         error={errors.descripcion}
         label="Descripción"
         maxLength={300}
@@ -72,7 +80,7 @@ export function CategoriaForm({ action, padres, defaultValues, submitLabel }: Ca
       <label className="flex items-center gap-3 text-sm font-medium">
         <input
           className="size-5 rounded border-line accent-brand"
-          defaultChecked={defaultValues?.activa ?? true}
+          defaultChecked={values.activa}
           name="activa"
           type="checkbox"
         />

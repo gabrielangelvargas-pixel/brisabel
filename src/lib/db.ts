@@ -3,7 +3,7 @@ import "server-only";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 import { getServerEnv } from "@/config/server-env";
-import { toPoolConfig } from "@/lib/db-config";
+import { adapterOptions, toPoolConfig } from "@/lib/db-config";
 import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
@@ -11,7 +11,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const adapter = new PrismaMariaDb(toPoolConfig(getServerEnv().DATABASE_URL));
+  const adapter = new PrismaMariaDb(toPoolConfig(getServerEnv().DATABASE_URL), adapterOptions);
 
   return new PrismaClient({ adapter });
 }

@@ -12,10 +12,30 @@ import { getDb } from "@/lib/db";
 
 type CategoriaField = "nombre" | "slug" | "descripcion" | "parentId";
 
+export type CategoriaFormValues = {
+  nombre: string;
+  slug: string;
+  descripcion: string;
+  parentId: string;
+  activa: boolean;
+};
+
 export type CategoriaFormState = {
   error?: string;
   fieldErrors?: Partial<Record<CategoriaField, string>>;
+  // Lo enviado, para no perderlo si hay errores (React reinicia el form).
+  values?: CategoriaFormValues;
 };
+
+function formValues(formData: FormData): CategoriaFormValues {
+  return {
+    nombre: String(formData.get("nombre") ?? ""),
+    slug: String(formData.get("slug") ?? ""),
+    descripcion: String(formData.get("descripcion") ?? ""),
+    parentId: String(formData.get("parentId") ?? ""),
+    activa: formData.get("activa") === "on",
+  };
+}
 
 type Tx = Prisma.TransactionClient;
 
@@ -75,15 +95,17 @@ export async function crearCategoriaAction(
 
   const parsed = parseCategoriaForm(formData);
 
+  const values = formValues(formData);
+
   if (!parsed.success) {
-    return { fieldErrors: fieldErrorsFrom(parsed.error) };
+    return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
   }
 
   const data = parsed.data;
   const { padre, error } = await resolverPadre(data.parentId);
 
   if (error) {
-    return { fieldErrors: { parentId: error } };
+    return { values, fieldErrors: { parentId: error } };
   }
 
   try {
@@ -106,7 +128,7 @@ export async function crearCategoriaAction(
     });
   } catch (err) {
     if (isSlugDuplicado(err)) {
-      return { fieldErrors: { slug: "Ya existe una categoría con ese slug." } };
+      return { values, fieldErrors: { slug: "Ya existe una categoría con ese slug." } };
     }
     throw err;
   }
@@ -125,8 +147,10 @@ export async function editarCategoriaAction(
 
   const parsed = parseCategoriaForm(formData);
 
+  const values = formValues(formData);
+
   if (!parsed.success) {
-    return { fieldErrors: fieldErrorsFrom(parsed.error) };
+    return { values, fieldErrors: fieldErrorsFrom(parsed.error) };
   }
 
   const data = parsed.data;
@@ -136,7 +160,7 @@ export async function editarCategoriaAction(
   });
 
   if (!actual) {
-    return { error: "La categoría ya no existe." };
+    return { values, error: "La categoría ya no existe." };
   }
 
   const cambiaPadre = data.parentId !== actual.parentId;
@@ -146,18 +170,19 @@ export async function editarCategoriaAction(
     const { padre, error } = await resolverPadre(data.parentId);
 
     if (error) {
-      return { fieldErrors: { parentId: error } };
+      return { values, fieldErrors: { parentId: error } };
     }
 
     // Evita ciclos: el nuevo padre no puede estar dentro de la propia categoría.
     if (padre && isInSubtree(padre.ruta, actual.ruta)) {
-      return { fieldErrors: { parentId: "No se puede mover una categoría dentro de sí misma." } };
+      return { values, fieldErrors: { parentId: "No se puede mover una categoría dentro de sí misma." } };
     }
 
     const nivel = padre ? padre.nivel + 1 : 0;
 
     if (nivel + (await getAlturaSubarbol(actual)) > MAX_NIVEL) {
       return {
+        values,
         fieldErrors: {
           parentId: `Con sus subcategorías superaría los ${MAX_NIVEL + 1} niveles permitidos.`,
         },
@@ -185,7 +210,7 @@ export async function editarCategoriaAction(
     });
   } catch (err) {
     if (isSlugDuplicado(err)) {
-      return { fieldErrors: { slug: "Ya existe una categoría con ese slug." } };
+      return { values, fieldErrors: { slug: "Ya existe una categoría con ese slug." } };
     }
     throw err;
   }

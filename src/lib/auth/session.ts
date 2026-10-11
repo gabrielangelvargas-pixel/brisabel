@@ -4,6 +4,7 @@ import { createHash, randomBytes } from "node:crypto";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 
 import { ROLES, type RolCodigo } from "@/lib/auth/roles";
@@ -64,6 +65,10 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   if (!token) {
     return null;
   }
+
+  // La validez de la sesión depende de la hora actual: se resuelve siempre en
+  // el request, nunca en un prerender (Partial Prefetching).
+  await connection();
 
   const session = await getDb().sesion.findUnique({
     where: { tokenHash: hashToken(token) },
