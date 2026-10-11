@@ -17,6 +17,9 @@ export type ProductoPublico = {
   precioVenta: string; // Decimal serializado ("12500.00")
   imagen: string | null;
   destacado: boolean;
+  variante: string | null;
+  ordenVariante: number;
+  modelo: { id: number; nombre: string; variacion: string } | null;
 };
 
 async function getProductosDeCategoriaCache(categoriaId: number): Promise<ProductoPublico[]> {
@@ -27,7 +30,18 @@ async function getProductosDeCategoriaCache(categoriaId: number): Promise<Produc
   const productos = await getDb().producto.findMany({
     where: { categoriaId, activo: true },
     orderBy: [{ destacado: "desc" }, { nombre: "asc" }],
-    select: { id: true, sku: true, nombre: true, slug: true, precioVenta: true, imagen: true, destacado: true },
+    select: {
+      id: true,
+      sku: true,
+      nombre: true,
+      slug: true,
+      precioVenta: true,
+      imagen: true,
+      destacado: true,
+      variante: true,
+      ordenVariante: true,
+      modelo: { select: { id: true, nombre: true, variacion: true } },
+    },
   });
 
   return productos.map((p) => ({ ...p, precioVenta: p.precioVenta.toString() }));

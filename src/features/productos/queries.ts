@@ -24,7 +24,9 @@ export async function getProductosAdmin(filtros: { categoriaId?: number; buscar?
       activo: true,
       destacado: true,
       imagen: true,
+      variante: true,
       categoria: { select: { nombre: true } },
+      modelo: { select: { id: true, nombre: true } },
     },
   });
 }

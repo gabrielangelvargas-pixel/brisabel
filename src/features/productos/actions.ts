@@ -4,6 +4,7 @@ import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { limpiarModelos } from "@/features/modelos/limpieza";
 import { PRODUCTO_IMAGEN_LADO } from "@/features/productos/imagen-size";
 import { PRODUCTOS_TAG } from "@/features/productos/public-queries";
 import {
@@ -197,7 +198,7 @@ export async function editarProductoAction(
   const data = await conSlugDisponible(leido, id);
   const actual = await getDb().producto.findUnique({
     where: { id },
-    select: { categoriaId: true, imagen: true },
+    select: { categoriaId: true, imagen: true, modeloId: true },
   });
 
   if (!actual) {
@@ -229,9 +230,22 @@ export async function editarProductoAction(
       await saveFile("productos", archivoNuevo, imagen.data);
     }
 
-    await getDb().producto.update({
-      where: { id },
-      data: { ...datos(data), ...(cambiaImagen ? { imagen: archivoNuevo } : {}) },
+    // Los modelos son de una sola categoría: si cambia, sale de su modelo.
+    const saleDelModelo = actual.modeloId !== null && data.categoriaId !== actual.categoriaId;
+
+    await getDb().$transaction(async (tx) => {
+      await tx.producto.update({
+        where: { id },
+        data: {
+          ...datos(data),
+          ...(cambiaImagen ? { imagen: archivoNuevo } : {}),
+          ...(saleDelModelo ? { modeloId: null, variante: null, ordenVariante: 0 } : {}),
+        },
+      });
+
+      if (saleDelModelo) {
+        await limpiarModelos(tx, [actual.modeloId]);
+      }
     });
   } catch (err) {
     await deleteFile("productos", archivoNuevo);
@@ -256,10 +270,14 @@ export async function eliminarProductoAction(formData: FormData) {
   await requireAdmin();
 
   const id = productoIdSchema.parse(formData.get("id"));
-  const producto = await getDb().producto.findUnique({ where: { id }, select: { imagen: true } });
+  const producto = await getDb().producto.findUnique({ where: { id }, select: { imagen: true, modeloId: true } });
 
   if (producto) {
-    await getDb().producto.delete({ where: { id } });
+    await getDb().$transaction(async (tx) => {
+      await tx.producto.delete({ where: { id } });
+      // Si su modelo queda con un solo producto, se disuelve.
+      await limpiarModelos(tx, [producto.modeloId]);
+    });
     await deleteFile("productos", producto.imagen);
   }
 

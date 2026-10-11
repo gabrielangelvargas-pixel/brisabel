@@ -1,4 +1,4 @@
-import { Copy, EyeOff, ImageOff, Pencil, Sparkles, Trash2 } from "lucide-react";
+import { Copy, EyeOff, ImageOff, Layers, Pencil, Sparkles, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,7 +16,9 @@ type ProductoFila = {
   activo: boolean;
   destacado: boolean;
   imagen: string | null;
+  variante: string | null;
   categoria: { nombre: string };
+  modelo: { id: number; nombre: string } | null;
 };
 
 const iconButton =
@@ -38,6 +40,15 @@ export function ProductoList({ productos }: { productos: ProductoFila[] }) {
 
         return (
           <li className="flex items-center gap-3 p-2 pr-2 sm:p-3" key={producto.id}>
+            {/* Casilla del formulario "Agrupar seleccionados" (fuera de la lista). */}
+            <input
+              aria-label={`Seleccionar ${producto.nombre}`}
+              className="size-4 shrink-0 accent-brand"
+              form="agrupar-form"
+              name="ids"
+              type="checkbox"
+              value={producto.id}
+            />
             {imagenUrl ? (
               <Image
                 alt=""
@@ -67,6 +78,18 @@ export function ProductoList({ productos }: { productos: ProductoFila[] }) {
               <p className="truncate text-xs text-muted">
                 {producto.sku} · {producto.categoria.nombre}
               </p>
+              {producto.modelo ? (
+                <Link
+                  className="mt-1 inline-flex max-w-full items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-xs text-brand hover:bg-line"
+                  href={`/admin/productos/modelos/${producto.modelo.id}`}
+                  title="Editar modelo"
+                >
+                  <Layers className="size-3 shrink-0" />
+                  <span className="truncate">
+                    {producto.modelo.nombre} · {producto.variante}
+                  </span>
+                </Link>
+              ) : null}
             </div>
 
             <div className="hidden shrink-0 text-right sm:block">

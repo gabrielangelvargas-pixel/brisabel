@@ -13,6 +13,9 @@ const mensajesOk: Record<string, string> = {
   creado: "Producto creado.",
   actualizado: "Cambios guardados.",
   eliminado: "Producto eliminado.",
+  agrupado: "Productos agrupados en un modelo.",
+  modelo: "Modelo actualizado.",
+  desagrupado: "Modelo desagrupado: los productos se muestran por separado.",
 };
 
 export default function AdminProductosPage({ searchParams }: PageProps<"/admin/productos">) {
@@ -91,6 +94,23 @@ async function Listado({ searchParams }: Pick<PageProps<"/admin/productos">, "se
           type="submit"
         >
           Filtrar
+        </button>
+      </form>
+
+      {/* Las casillas de cada fila pertenecen a este formulario (atributo form). */}
+      <form
+        action="/admin/productos/agrupar"
+        className="flex flex-col gap-2 rounded-lg border border-line bg-surface px-3 py-2 text-sm sm:flex-row sm:items-center sm:justify-between"
+        id="agrupar-form"
+      >
+        <p className="text-muted">
+          Para mostrar variantes juntas (colores, tamaños, largos), marcá los productos y agrupalos.
+        </p>
+        <button
+          className="h-9 shrink-0 rounded-md bg-brand px-4 text-sm font-semibold text-white transition hover:bg-brand-strong"
+          type="submit"
+        >
+          Agrupar seleccionados
         </button>
       </form>
 

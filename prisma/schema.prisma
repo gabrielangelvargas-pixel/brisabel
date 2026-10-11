@@ -72,21 +72,40 @@ model Categoria {
 // Productos del catálogo. Solo se asignan a categorías sin subcategorías
 // (regla aplicada por la app). precioCosto es interno: nunca se muestra en la tienda.
 model Producto {
-  id          Int       @id @default(autoincrement())
-  sku         String    @unique @db.VarChar(40)
-  nombre      String    @db.VarChar(150)
-  slug        String    @unique @db.VarChar(170)
-  precioCosto Decimal   @db.Decimal(12, 2)
-  precioVenta Decimal   @db.Decimal(12, 2)
-  categoriaId Int
-  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
-  activo      Boolean   @default(true)
-  destacado   Boolean   @default(false)
+  id            Int       @id @default(autoincrement())
+  sku           String    @unique @db.VarChar(40)
+  nombre        String    @db.VarChar(150)
+  slug          String    @unique @db.VarChar(170)
+  precioCosto   Decimal   @db.Decimal(12, 2)
+  precioVenta   Decimal   @db.Decimal(12, 2)
+  categoriaId   Int
+  categoria     Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  activo        Boolean   @default(true)
+  destacado     Boolean   @default(false)
   // Archivo WebP cuadrado, en BRISABEL_UPLOADS_DIR/productos.
-  imagen      String?   @db.VarChar(120)
-  creado      DateTime  @default(now())
-  modificado  DateTime  @updatedAt
+  imagen        String?   @db.VarChar(120)
+  // Agrupación opcional: productos del mismo modelo se muestran en una sola
+  // tarjeta (ej. Modelo "Cartera chica", variante "Negro").
+  modeloId      Int?
+  modelo        Modelo?   @relation(fields: [modeloId], references: [id], onDelete: SetNull)
+  variante      String?   @db.VarChar(60)
+  ordenVariante Int       @default(0)
+  creado        DateTime  @default(now())
+  modificado    DateTime  @updatedAt
 
   @@index([categoriaId, activo])
   @@index([activo, destacado])
+  @@index([modeloId])
+}
+
+// Agrupa productos que son el mismo diseño en distinto color, tamaño, largo...
+// Todos sus productos están en la misma categoría (regla aplicada por la app).
+model Modelo {
+  id         Int        @id @default(autoincrement())
+  nombre     String     @db.VarChar(150)
+  // Qué varía entre sus productos: "Color", "Tamaño", "Largo"...
+  variacion  String     @db.VarChar(40)
+  productos  Producto[]
+  creado     DateTime   @default(now())
+  modificado DateTime   @updatedAt
 }
