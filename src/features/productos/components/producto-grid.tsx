@@ -12,7 +12,6 @@ export function ProductoGrid({ productos, categoria }: { productos: ProductoPubl
           <li key={`m${tarjeta.id}`}>
             <ProductoTarjeta
               categoria={categoria}
-              destacado={tarjeta.destacado}
               nombre={tarjeta.nombre}
               variacion={tarjeta.variacion}
               variantes={tarjeta.variantes}
@@ -22,7 +21,6 @@ export function ProductoGrid({ productos, categoria }: { productos: ProductoPubl
           <li key={`p${tarjeta.producto.id}`}>
             <ProductoTarjeta
               categoria={categoria}
-              destacado={tarjeta.producto.destacado}
               nombre={tarjeta.producto.nombre}
               variacion={null}
               variantes={[tarjeta.producto]}

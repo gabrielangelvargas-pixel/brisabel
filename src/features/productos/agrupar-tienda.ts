@@ -11,7 +11,6 @@ export type TarjetaTienda =
       id: number;
       nombre: string;
       variacion: string;
-      destacado: boolean;
       variantes: ProductoPublico[];
     };
 
@@ -33,7 +32,6 @@ export function agruparParaTienda(productos: ProductoPublico[]): TarjetaTienda[]
         id: producto.modelo.id,
         nombre: producto.modelo.nombre,
         variacion: producto.modelo.variacion,
-        destacado: false,
         variantes: [],
       };
       modelos.set(producto.modelo.id, grupo);
@@ -41,7 +39,6 @@ export function agruparParaTienda(productos: ProductoPublico[]): TarjetaTienda[]
     }
 
     grupo.variantes.push(producto);
-    grupo.destacado ||= producto.destacado;
   }
 
   for (const grupo of modelos.values()) {

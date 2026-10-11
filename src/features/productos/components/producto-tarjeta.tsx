@@ -14,20 +14,21 @@ type ProductoTarjetaProps = {
   categoria: string;
   // Qué varía ("Color", "Tamaño"...). null en productos sin variantes.
   variacion: string | null;
-  destacado: boolean;
   // Una sola en productos sueltos; varias en un modelo (ya ordenadas).
   variantes: ProductoPublico[];
 };
 
 // Tarjeta de la tienda + modal de detalle. Arranca con la primera variante;
 // la flecha pasa a la siguiente (y vuelve a la primera después de la última).
-// La variante elegida es la misma en la tarjeta y en el modal.
-export function ProductoTarjeta({ nombre, categoria, variacion, destacado, variantes }: ProductoTarjetaProps) {
+// La variante elegida es la misma en la tarjeta y en el modal, y el estilo
+// dorado de destacado sigue a la variante que se está mostrando.
+export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: ProductoTarjetaProps) {
   const [indice, setIndice] = useState(0);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const conVariantes = variacion !== null && variantes.length > 1;
   const elegida = variantes[indice];
+  const destacado = elegida.destacado;
   const siguiente = variantes[(indice + 1) % variantes.length];
   const avanzar = () => setIndice((i) => (i + 1) % variantes.length);
   const imagenUrl = productoImagenUrl(elegida.imagen);
