@@ -84,7 +84,7 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 
 - Roles en la tabla `Rol`: `ADMIN` (Administrador) y `CLIENTE` (Cliente), creados por la migración `roles`.
 - `/ingresar` tiene dos fichas: **Ingresar** (usuario o DNI + contraseña) y **Crear cuenta** (crea un usuario con rol `CLIENTE` y deja la sesión iniciada).
-- Al ingresar, el admin va a `/admin` y el cliente al inicio. El ícono de cuenta del navbar lleva a `/admin` o a `/perfil` según el rol.
+- Al ingresar, el admin va a `/admin` y el cliente al inicio. En el navbar, el ícono de perfil lleva a `/perfil` para todos; el admin ve además un ícono de panel que lleva a `/admin`.
 - Sesiones guardadas en la tabla `Sesion` (solo el hash del token); cookie `httpOnly` de 7 días.
 - Límites: 5 logins fallidos cada 15 minutos por IP y por usuario; 5 cuentas nuevas cada 15 minutos por IP.
 - Crear el primer admin: `npm run db:deploy` (si faltan las tablas) y luego `npm run admin:create`.
