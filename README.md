@@ -56,8 +56,8 @@ Otros:
 
 - `public/brand/logo.png`: logo optimizado para la web (800 px). El original en alta está en `assets/brand/` (no se publica).
 - `public/og.png`: imagen para compartir en redes (1200x630).
-- `src/assets/home/`: imágenes de la Home (portada y recortes por categoría), importadas estáticamente para que Next las optimice. La foto original está en `assets/images/`.
-- Textos y categorías de la Home: `src/features/home/content.ts`.
+- `src/assets/home/`: imágenes fijas de la Home (portada y bloque de regalos), importadas estáticamente para que Next las optimice. La foto original está en `assets/images/`.
+- Las categorías de la Home y del catálogo salen de la base (ver *Categorías*).
 
 Las convenciones completas están en [AGENTS.md](AGENTS.md).
 
@@ -102,6 +102,8 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 - Slug único global → URLs cortas (`/catalogo/aros-de-plata`).
 - No se puede eliminar una categoría con subcategorías. Los productos irán solo en categorías sin hijas (se aplicará al crear la tabla de productos).
 - Lógica pura del árbol en `src/features/categorias/tree.ts`.
+- Público: `/catalogo` (principales) y `/catalogo/<slug>` (migas de pan, subcategorías y metadatos Open Graph para compartir). Una categoría oculta oculta también su subárbol.
+- Las lecturas públicas se cachean con la etiqueta `categorias` (`public-queries.ts`); las acciones del panel la invalidan con `updateTag`, así los cambios se ven al instante. Se leen por request, nunca durante el build.
 - Imagen opcional: se recorta a **1200×630 WebP** (tarjetas y vista previa al compartir en redes) y se guarda en `BRISABEL_UPLOADS_DIR/categorias` con nombre único por versión. Se sirve en `/media/categorias/<archivo>` con caché de un año.
 
 ## Hoja de ruta
@@ -109,7 +111,7 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 1. ~~Base del proyecto~~
 2. Base de datos (Prisma + MySQL)
 3. ~~Autenticación de administradores~~
-4. Categorías (~~ABM en el panel~~, catálogo público pendiente)
+4. ~~Categorías (panel, imágenes y catálogo público)~~
 5. Productos
 6. Carrito y pedidos
 7. Deploy en Hostinger

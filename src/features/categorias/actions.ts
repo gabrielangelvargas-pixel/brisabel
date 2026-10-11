@@ -1,11 +1,13 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { categoriaIdSchema, parseCategoriaForm, type CategoriaInput } from "@/features/categorias/schemas";
 import { buildRuta, isInSubtree, MAX_NIVEL } from "@/features/categorias/tree";
 import { getArchivo, nombreArchivoCategoria, procesarImagenCategoria } from "@/features/categorias/imagen";
+import { CATEGORIAS_TAG } from "@/features/categorias/public-queries";
 import { getAlturaSubarbol } from "@/features/categorias/queries";
 import { Prisma } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth/session";
@@ -152,6 +154,7 @@ export async function crearCategoriaAction(
     throw err;
   }
 
+  updateTag(CATEGORIAS_TAG);
   redirect(`${listaUrl}?ok=creada`);
 }
 
@@ -258,6 +261,7 @@ export async function editarCategoriaAction(
     await deleteFile("categorias", actual.imagen);
   }
 
+  updateTag(CATEGORIAS_TAG);
   redirect(`${listaUrl}?ok=actualizada`);
 }
 
@@ -314,6 +318,7 @@ export async function eliminarCategoriaAction(formData: FormData) {
 
   await getDb().categoria.delete({ where: { id } });
   await deleteFile("categorias", categoria.imagen);
+  updateTag(CATEGORIAS_TAG);
   redirect(`${listaUrl}?ok=eliminada`);
 }
 
@@ -348,5 +353,6 @@ export async function moverCategoriaAction(formData: FormData) {
     }
   });
 
+  updateTag(CATEGORIAS_TAG);
   redirect(listaUrl);
 }

@@ -46,9 +46,9 @@ export function Hero() {
             </Link>
             <Link
               className="inline-flex h-12 items-center justify-center rounded-full border border-brand/20 bg-surface/70 px-7 text-sm font-semibold text-brand transition hover:border-brand/40 hover:bg-surface"
-              href="#categorias"
+              href="#ocasiones"
             >
-              Explorar categorías
+              Ideas para regalar
             </Link>
           </div>
         </div>

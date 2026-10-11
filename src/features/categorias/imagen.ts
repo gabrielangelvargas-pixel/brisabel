@@ -2,11 +2,9 @@ import "server-only";
 
 import sharp from "sharp";
 
-// Imagen de categoría: se recorta y convierte a 1200x630 WebP, el tamaño
-// recomendado para vista previa en redes (Open Graph). La misma imagen se usa
-// en las tarjetas del sitio.
-export const IMAGEN_ANCHO = 1200;
-export const IMAGEN_ALTO = 630;
+import { IMAGEN_ALTO, IMAGEN_ANCHO } from "@/features/categorias/imagen-size";
+
+// Imagen de categoría: se recorta y convierte a 1200x630 WebP.
 const maxBytes = 8 * 1024 * 1024;
 
 export type ImagenProcesada = { ok: true; data: Buffer } | { ok: false; error: string };
