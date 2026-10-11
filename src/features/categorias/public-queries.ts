@@ -51,7 +51,7 @@ async function getCategoriasVisiblesCache(): Promise<CategoriaPublica[]> {
 
 // connection(): los datos se leen en el request (y luego quedan en caché),
 // nunca durante el build, que no tiene acceso a la base.
-async function getCategoriasVisibles() {
+export async function getCategoriasVisibles() {
   await connection();
 
   return getCategoriasVisiblesCache();

@@ -5,7 +5,6 @@ import { GiftStory } from "@/features/home/components/gift-story";
 import { Hero } from "@/features/home/components/hero";
 import { HomeCategories } from "@/features/home/components/home-categories";
 import { Occasions } from "@/features/home/components/occasions";
-import { RetailCta } from "@/features/home/components/retail-cta";
 
 export default function HomePage() {
   return (
@@ -18,7 +17,6 @@ export default function HomePage() {
       </Suspense>
       <Occasions />
       <GiftStory />
-      <RetailCta />
     </main>
   );
 }
