@@ -52,7 +52,7 @@ function ProductoCard({ producto }: { producto: ProductoPublico }) {
         {destacado ? (
           <span
             aria-label="Destacado"
-            className="absolute top-2 left-2 inline-flex size-8 items-center justify-center rounded-full bg-accent text-white shadow-md ring-2 ring-white"
+            className="absolute top-2 left-2 inline-flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-gold-light via-gold to-gold-strong text-white shadow-md ring-2 ring-white"
             role="img"
             title="Destacado"
           >
@@ -64,7 +64,7 @@ function ProductoCard({ producto }: { producto: ProductoPublico }) {
       <div
         className={cn(
           "flex flex-1 flex-col gap-2 border-t p-3 sm:p-4",
-          destacado ? "border-heart/20 bg-accent-soft/50" : "border-line/60",
+          destacado ? "border-gold/25 bg-gold-soft" : "border-line/60",
         )}
       >
         {/* Alto fijo de 2 líneas: los precios quedan alineados en la fila. */}
@@ -74,7 +74,7 @@ function ProductoCard({ producto }: { producto: ProductoPublico }) {
         <p
           className={cn(
             "mt-auto text-lg font-bold tabular-nums sm:text-xl",
-            destacado ? "text-accent" : "text-brand",
+            destacado ? "text-gold-strong" : "text-brand",
           )}
         >
           {formatPrecio(producto.precioVenta)}
@@ -87,9 +87,9 @@ function ProductoCard({ producto }: { producto: ProductoPublico }) {
     return tarjeta;
   }
 
-  // Destacado: borde en degradé con los colores del logo y sombra rosada.
+  // Destacado: borde en degradé dorado (efecto metálico) y sombra dorada.
   return (
-    <div className="h-full rounded-2xl bg-gradient-to-br from-heart via-heart/70 to-leaf p-[2px] shadow-md shadow-heart/20 transition duration-300 hover:shadow-lg hover:shadow-heart/30">
+    <div className="h-full rounded-2xl bg-gradient-to-br from-gold-light via-gold to-gold-strong p-[2px] shadow-md shadow-gold/25 transition duration-300 hover:shadow-lg hover:shadow-gold/40">
       {tarjeta}
     </div>
   );

@@ -19,6 +19,12 @@
   --color-heart: #fd687a;
   --color-sand: #f4ede4;
 
+  /* Dorados: destaques premium (productos destacados). */
+  --color-gold-light: #ecd48a;
+  --color-gold: #c9a227;
+  --color-gold-strong: #8a6a12;
+  --color-gold-soft: #fbf5e4;
+
   --animate-fade-up: fade-up 0.7s ease-out both;
 
   @keyframes fade-up {
