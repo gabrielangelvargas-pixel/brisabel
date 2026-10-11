@@ -1,28 +1,31 @@
 import { agruparParaTienda } from "@/features/productos/agrupar-tienda";
-import { ModeloCard } from "@/features/productos/components/modelo-card";
-import { ProductoCard } from "@/features/productos/components/producto-card";
-import { productoImagenUrl } from "@/features/productos/imagen-size";
+import { ProductoTarjeta } from "@/features/productos/components/producto-tarjeta";
 import type { ProductoPublico } from "@/features/productos/public-queries";
-import { formatPrecio } from "@/lib/format";
 
 // Grilla de productos de la tienda: los productos de un mismo modelo se
-// muestran en una sola tarjeta con sus variantes. Todavía sin enlace: la
-// página de detalle de producto se agrega en un paso siguiente.
-export function ProductoGrid({ productos }: { productos: ProductoPublico[] }) {
+// muestran en una sola tarjeta con sus variantes; tocar la foto abre el detalle.
+export function ProductoGrid({ productos, categoria }: { productos: ProductoPublico[]; categoria: string }) {
   return (
     <ul className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
       {agruparParaTienda(productos).map((tarjeta) =>
         tarjeta.tipo === "modelo" ? (
           <li key={`m${tarjeta.id}`}>
-            <ModeloCard modelo={tarjeta} />
+            <ProductoTarjeta
+              categoria={categoria}
+              destacado={tarjeta.destacado}
+              nombre={tarjeta.nombre}
+              variacion={tarjeta.variacion}
+              variantes={tarjeta.variantes}
+            />
           </li>
         ) : (
           <li key={`p${tarjeta.producto.id}`}>
-            <ProductoCard
+            <ProductoTarjeta
+              categoria={categoria}
               destacado={tarjeta.producto.destacado}
-              imagenUrl={productoImagenUrl(tarjeta.producto.imagen)}
               nombre={tarjeta.producto.nombre}
-              precio={formatPrecio(tarjeta.producto.precioVenta)}
+              variacion={null}
+              variantes={[tarjeta.producto]}
             />
           </li>
         ),

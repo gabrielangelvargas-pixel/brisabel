@@ -4,18 +4,59 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
+// Foto del producto (o un fondo con los colores de la marca si no tiene).
+// El contenedor define el tamaño: la imagen lo llena.
+export function ProductoImagen({ nombre, imagenUrl, sizes }: { nombre: string; imagenUrl: string | null; sizes: string }) {
+  if (!imagenUrl) {
+    return (
+      <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-sand via-brand-soft to-accent-soft">
+        <Heart className="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 text-heart/40" />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      alt={nombre}
+      className="object-cover transition duration-500 ease-out group-hover:scale-105"
+      fill
+      sizes={sizes}
+      src={imagenUrl}
+      unoptimized
+    />
+  );
+}
+
+export function BadgeDestacado({ className }: { className?: string }) {
+  return (
+    <span
+      aria-label="Destacado"
+      className={cn(
+        "inline-flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-gold-light via-gold to-gold-strong text-white shadow-md ring-2 ring-white",
+        className,
+      )}
+      role="img"
+      title="Destacado"
+    >
+      <Sparkles className="size-4" />
+    </span>
+  );
+}
+
 type ProductoCardProps = {
   nombre: string;
   imagenUrl: string | null;
-  precio: ReactNode;
   destacado: boolean;
-  // Contenido extra bajo el nombre (ej. botones de variantes).
-  children?: ReactNode;
+  // Al tocar la imagen (ej. abrir el detalle).
+  onAbrir?: () => void;
+  // Datos bajo el nombre: variante, precio, botones.
+  children: ReactNode;
 };
 
-// Diseño de la tarjeta de producto, compartido por la tarjeta simple y la
-// de modelo con variantes. Sin estado: sirve en servidor y en cliente.
-export function ProductoCard({ nombre, imagenUrl, precio, destacado, children }: ProductoCardProps) {
+// Diseño de la tarjeta de producto de la tienda.
+export function ProductoCard({ nombre, imagenUrl, destacado, onAbrir, children }: ProductoCardProps) {
+  const imagen = <ProductoImagen imagenUrl={imagenUrl} nombre={nombre} sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw" />;
+
   const tarjeta = (
     <article
       className={cn(
@@ -26,42 +67,23 @@ export function ProductoCard({ nombre, imagenUrl, precio, destacado, children }:
       )}
     >
       <div className="relative aspect-square overflow-hidden bg-white">
-        {imagenUrl ? (
-          <Image
-            alt={nombre}
-            className="object-cover transition duration-500 ease-out group-hover:scale-105"
-            fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-            src={imagenUrl}
-            unoptimized
-          />
+        {onAbrir ? (
+          <button aria-label={`Ver detalle de ${nombre}`} className="absolute inset-0 cursor-zoom-in" onClick={onAbrir} type="button">
+            {imagen}
+          </button>
         ) : (
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-sand via-brand-soft to-accent-soft">
-            <Heart className="absolute top-1/2 left-1/2 size-12 -translate-x-1/2 -translate-y-1/2 text-heart/40" />
-          </div>
+          imagen
         )}
-
-        {destacado ? (
-          <span
-            aria-label="Destacado"
-            className="absolute top-2 left-2 inline-flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-gold-light via-gold to-gold-strong text-white shadow-md ring-2 ring-white"
-            role="img"
-            title="Destacado"
-          >
-            <Sparkles className="size-4" />
-          </span>
-        ) : null}
+        {destacado ? <BadgeDestacado className="pointer-events-none absolute top-2 left-2" /> : null}
       </div>
 
-      <div className={cn("flex flex-1 flex-col gap-2 border-t p-3 sm:p-4", destacado ? "border-gold/25 bg-gold-soft" : "border-line/60")}>
-        {/* Alto fijo de 2 líneas: los precios quedan alineados en la fila. */}
+      <div className={cn("flex flex-1 flex-col border-t p-3 sm:p-4", destacado ? "border-gold/25 bg-gold-soft" : "border-line/60")}>
+        {/* Alto fijo de 2 líneas: en el celular el nombre suele ocuparlas y
+            así los precios quedan alineados en la fila. */}
         <h3 className="line-clamp-2 min-h-[2.5rem] text-sm leading-5 font-medium text-ink sm:min-h-[3rem] sm:text-base sm:leading-6">
           {nombre}
         </h3>
-        {children}
-        <p className={cn("mt-auto text-lg font-bold tabular-nums sm:text-xl", destacado ? "text-gold-strong" : "text-brand")}>
-          {precio}
-        </p>
+        <div className="mt-auto pt-2">{children}</div>
       </div>
     </article>
   );

@@ -159,7 +159,7 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
             </div>
           </>
         ) : (
-          <ProductosDeCategoria categoriaId={categoria.id} />
+          <ProductosDeCategoria categoria={categoria.nombre} categoriaId={categoria.id} />
         )}
       </section>
     </>
@@ -167,7 +167,7 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
 }
 
 // Las categorías sin subcategorías muestran sus productos.
-async function ProductosDeCategoria({ categoriaId }: { categoriaId: number }) {
+async function ProductosDeCategoria({ categoriaId, categoria }: { categoriaId: number; categoria: string }) {
   const productos = await getProductosDeCategoria(categoriaId);
 
   if (productos.length === 0) {
@@ -180,7 +180,7 @@ async function ProductosDeCategoria({ categoriaId }: { categoriaId: number }) {
     );
   }
 
-  return <ProductoGrid productos={productos} />;
+  return <ProductoGrid categoria={categoria} productos={productos} />;
 }
 
 function CategoriaFallback() {
