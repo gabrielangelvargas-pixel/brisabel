@@ -106,12 +106,19 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 - Las lecturas públicas se cachean con la etiqueta `categorias` (`public-queries.ts`); las acciones del panel la invalidan con `updateTag`, así los cambios se ven al instante. Se leen por request, nunca durante el build.
 - Imagen opcional: se recorta a **1200×630 WebP** (medidas en `src/features/categorias/imagen-size.ts`) (tarjetas y vista previa al compartir en redes) y se guarda en `BRISABEL_UPLOADS_DIR/categorias` con nombre único por versión. Se sirve en `/media/categorias/<archivo>` con caché de un año.
 
+## Productos
+
+- Tabla `Producto`: SKU y slug únicos, precio de costo (solo panel) y de venta, categoría, activo, destacado, imagen cuadrada 1000×1000 WebP (`BRISABEL_UPLOADS_DIR/productos`).
+- Solo van en categorías **sin subcategorías**: el panel solo ofrece esas, y una categoría con productos no puede recibir subcategorías ni eliminarse.
+- Panel en `/admin/productos` (buscar por nombre o SKU, filtrar por categoría). Los precios se escriben como en Argentina: `12.500` o `12.500,50`.
+- En la tienda, la página de una categoría sin subcategorías muestra sus productos activos (caché con etiqueta `productos`).
+
 ## Hoja de ruta
 
 1. ~~Base del proyecto~~
 2. Base de datos (Prisma + MySQL)
 3. ~~Autenticación de administradores~~
 4. ~~Categorías (panel, imágenes y catálogo público)~~
-5. Productos
+5. Productos (~~tabla y panel~~, página de detalle pendiente)
 6. Carrito y pedidos
 7. Deploy en Hostinger

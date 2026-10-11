@@ -1,4 +1,4 @@
-import { FolderTree } from "lucide-react";
+import { FolderTree, Package } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -10,6 +10,12 @@ const secciones = [
     descripcion: "Organizá el catálogo en categorías y subcategorías.",
     href: "/admin/categorias",
     icon: FolderTree,
+  },
+  {
+    titulo: "Productos",
+    descripcion: "Cargá productos con su SKU, precios e imagen.",
+    href: "/admin/productos",
+    icon: Package,
   },
 ];
 

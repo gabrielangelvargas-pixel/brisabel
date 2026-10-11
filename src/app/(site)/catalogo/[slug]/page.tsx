@@ -11,6 +11,8 @@ import { CategoriaGrid, CategoriaGridSkeleton } from "@/features/categorias/comp
 import { IMAGEN_ALTO, IMAGEN_ANCHO, IMAGEN_PROPORCION } from "@/features/categorias/imagen-size";
 import { getCategoriaPublica } from "@/features/categorias/public-queries";
 import { categoriaImagenUrl } from "@/features/categorias/tree";
+import { ProductoGrid } from "@/features/productos/components/producto-grid";
+import { getProductosDeCategoria } from "@/features/productos/public-queries";
 
 type Props = PageProps<"/catalogo/[slug]">;
 
@@ -149,15 +151,28 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
             </div>
           </>
         ) : (
-          <div className="rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
-            <PackageOpen className="mx-auto size-10 text-leaf" />
-            <p className="mt-4 font-semibold">Estamos cargando los productos de esta categoría</p>
-            <p className="mt-1 text-sm text-muted">Volvé pronto para descubrirlos.</p>
-          </div>
+          <ProductosDeCategoria categoriaId={categoria.id} />
         )}
       </section>
     </>
   );
+}
+
+// Las categorías sin subcategorías muestran sus productos.
+async function ProductosDeCategoria({ categoriaId }: { categoriaId: number }) {
+  const productos = await getProductosDeCategoria(categoriaId);
+
+  if (productos.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
+        <PackageOpen className="mx-auto size-10 text-leaf" />
+        <p className="mt-4 font-semibold">Estamos cargando los productos de esta categoría</p>
+        <p className="mt-1 text-sm text-muted">Volvé pronto para descubrirlos.</p>
+      </div>
+    );
+  }
+
+  return <ProductoGrid productos={productos} />;
 }
 
 function CategoriaFallback() {

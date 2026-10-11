@@ -14,7 +14,7 @@ const categoriaSelect = {
   parentId: true,
   nivel: true,
   ruta: true,
-  _count: { select: { hijas: true } },
+  _count: { select: { hijas: true, productos: true } },
 } as const;
 
 // Árbol completo para el panel, aplanado en orden de lectura.
@@ -46,6 +46,7 @@ export async function getPadresPosibles(editando?: { ruta: string; altura: numbe
   const categorias = await getDb().categoria.findMany({
     where: {
       nivel: { lte: maxNivelPadre },
+      productos: { none: {} }, // con productos no puede tener subcategorías
       ...(editando ? { NOT: { ruta: { startsWith: editando.ruta } } } : {}),
     },
     select: categoriaSelect,

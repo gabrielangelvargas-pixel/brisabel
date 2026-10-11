@@ -18,6 +18,7 @@ const mensajesOk: Record<string, string> = {
 
 const mensajesError: Record<string, string> = {
   "tiene-hijas": "No se puede eliminar una categoría que tiene subcategorías.",
+  "tiene-productos": "No se puede eliminar una categoría que tiene productos. Movelos o eliminalos primero.",
 };
 
 export default function AdminCategoriasPage({ searchParams }: PageProps<"/admin/categorias">) {

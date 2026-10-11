@@ -1,14 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Field, SelectField, TextareaField } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
+import { ImageField } from "@/components/ui/image-field";
 import type { CategoriaFormState } from "@/features/categorias/actions";
-import { IMAGEN_ALTO, IMAGEN_ANCHO, IMAGEN_PROPORCION } from "@/features/categorias/imagen-size";
+import { IMAGEN_ALTO, IMAGEN_ANCHO } from "@/features/categorias/imagen-size";
 import { categoriaImagenUrl } from "@/features/categorias/tree";
 
 type PadreOpcion = { id: number; nombre: string; nivel: number };
@@ -81,7 +81,13 @@ export function CategoriaForm({ action, padres, defaultValues, submitLabel }: Ca
         name="descripcion"
       />
 
-      <ImagenField actual={categoriaImagenUrl(defaultValues?.imagen ?? null)} error={errors.imagen} />
+      <ImageField
+        actual={categoriaImagenUrl(defaultValues?.imagen ?? null)}
+        alto={IMAGEN_ALTO}
+        ancho={IMAGEN_ANCHO}
+        error={errors.imagen}
+        uso="formato para compartir en redes"
+      />
 
       <label className="flex items-center gap-3 text-sm font-medium">
         <input
@@ -107,47 +113,5 @@ export function CategoriaForm({ action, padres, defaultValues, submitLabel }: Ca
         </Button>
       </div>
     </form>
-  );
-}
-
-// Imagen de la categoría: muestra la actual y permite reemplazarla o quitarla.
-function ImagenField({ actual, error }: { actual: string | null; error?: string }) {
-  return (
-    <fieldset className="grid gap-3">
-      <legend className="text-sm font-medium">Imagen</legend>
-
-      {actual ? (
-        <div className="flex flex-wrap items-end gap-4">
-          <Image
-            alt="Imagen actual de la categoría"
-            className="w-60 rounded-md border border-line object-cover"
-            height={IMAGEN_ALTO}
-            src={actual}
-            style={IMAGEN_PROPORCION}
-            unoptimized
-            width={IMAGEN_ANCHO}
-          />
-          <label className="flex items-center gap-2 text-sm">
-            <input className="size-4 accent-accent" name="quitarImagen" type="checkbox" />
-            Quitar imagen
-          </label>
-        </div>
-      ) : null}
-
-      <input
-        accept="image/jpeg,image/png,image/webp"
-        aria-describedby="imagen-message"
-        aria-invalid={error ? true : undefined}
-        className="block w-full text-sm file:mr-3 file:h-10 file:rounded-md file:border-0 file:bg-brand-soft file:px-4 file:text-sm file:font-semibold file:text-brand hover:file:bg-line"
-        id="imagen"
-        name="imagen"
-        type="file"
-      />
-      <p className={error ? "text-xs text-accent" : "text-xs text-muted"} id="imagen-message">
-        {error ??
-          (actual ? "Elegí un archivo solo si querés reemplazarla. " : "") +
-            `JPG, PNG o WebP, hasta 8 MB. Se recorta a ${IMAGEN_ANCHO}×${IMAGEN_ALTO} (formato para compartir en redes).`}
-      </p>
-    </fieldset>
   );
 }

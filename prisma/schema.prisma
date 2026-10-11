@@ -59,6 +59,7 @@ model Categoria {
   parentId    Int?
   parent      Categoria?  @relation("Jerarquia", fields: [parentId], references: [id], onDelete: Restrict)
   hijas       Categoria[] @relation("Jerarquia")
+  productos   Producto[]
   ruta        String      @db.VarChar(255)
   nivel       Int
   createdAt   DateTime    @default(now())
@@ -66,4 +67,26 @@ model Categoria {
 
   @@index([parentId, orden])
   @@index([ruta])
+}
+
+// Productos del catálogo. Solo se asignan a categorías sin subcategorías
+// (regla aplicada por la app). precioCosto es interno: nunca se muestra en la tienda.
+model Producto {
+  id          Int       @id @default(autoincrement())
+  sku         String    @unique @db.VarChar(40)
+  nombre      String    @db.VarChar(150)
+  slug        String    @unique @db.VarChar(170)
+  precioCosto Decimal   @db.Decimal(12, 2)
+  precioVenta Decimal   @db.Decimal(12, 2)
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  activo      Boolean   @default(true)
+  destacado   Boolean   @default(false)
+  // Archivo WebP cuadrado, en BRISABEL_UPLOADS_DIR/productos.
+  imagen      String?   @db.VarChar(120)
+  creado      DateTime  @default(now())
+  modificado  DateTime  @updatedAt
+
+  @@index([categoriaId, activo])
+  @@index([activo, destacado])
 }

@@ -16,7 +16,7 @@ type CategoriaFila = {
   activa: boolean;
   nivel: number;
   parentId: number | null;
-  _count: { hijas: number };
+  _count: { hijas: number; productos: number };
 };
 
 const iconButton =
@@ -38,8 +38,9 @@ export function CategoriaList({ categorias }: { categorias: CategoriaFila[] }) {
       {categorias.map((categoria, index) => {
         const hermanas = categorias.filter((c) => c.parentId === categoria.parentId);
         const posicion = hermanas.findIndex((c) => c.id === categoria.id);
-        const puedeTenerHijas = categoria.nivel < MAX_NIVEL;
-        const puedeEliminar = categoria._count.hijas === 0;
+        const { hijas, productos } = categoria._count;
+        const puedeTenerHijas = categoria.nivel < MAX_NIVEL && productos === 0;
+        const puedeEliminar = hijas === 0 && productos === 0;
         const imagenUrl = categoriaImagenUrl(categoria.imagen);
 
         return (
@@ -80,6 +81,7 @@ export function CategoriaList({ categorias }: { categorias: CategoriaFila[] }) {
               </p>
               <p className="truncate text-xs text-muted">
                 {nivelLabel[categoria.nivel]} · /{categoria.slug}
+                {productos > 0 ? ` · ${productos} ${productos === 1 ? "producto" : "productos"}` : ""}
               </p>
             </div>
 
@@ -130,7 +132,7 @@ export function CategoriaList({ categorias }: { categorias: CategoriaFila[] }) {
                   className={cn(iconButton, "hover:bg-accent-soft hover:text-accent")}
                   disabled={!puedeEliminar}
                   message={`¿Eliminar la categoría "${categoria.nombre}"? Esta acción no se puede deshacer.`}
-                  title={puedeEliminar ? "Eliminar" : "Tiene subcategorías: no se puede eliminar"}
+                  title={puedeEliminar ? "Eliminar" : "Tiene subcategorías o productos: no se puede eliminar"}
                 >
                   <Trash2 className="size-4" />
                 </ConfirmSubmitButton>

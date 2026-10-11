@@ -75,11 +75,16 @@ async function resolverPadre(parentId: number | null) {
 
   const padre = await getDb().categoria.findUnique({
     where: { id: parentId },
-    select: { id: true, ruta: true, nivel: true },
+    select: { id: true, ruta: true, nivel: true, _count: { select: { productos: true } } },
   });
 
   if (!padre) {
     return { error: "La categoría padre ya no existe." };
+  }
+
+  // Los productos solo van en categorías sin subcategorías.
+  if (padre._count.productos > 0) {
+    return { error: "Esa categoría tiene productos: no puede tener subcategorías. Mové sus productos primero." };
   }
 
   if (padre.nivel >= MAX_NIVEL) {
@@ -305,7 +310,7 @@ export async function eliminarCategoriaAction(formData: FormData) {
   const id = categoriaIdSchema.parse(formData.get("id"));
   const categoria = await getDb().categoria.findUnique({
     where: { id },
-    select: { imagen: true, _count: { select: { hijas: true } } },
+    select: { imagen: true, _count: { select: { hijas: true, productos: true } } },
   });
 
   if (!categoria) {
@@ -314,6 +319,10 @@ export async function eliminarCategoriaAction(formData: FormData) {
 
   if (categoria._count.hijas > 0) {
     redirect(`${listaUrl}?error=tiene-hijas`);
+  }
+
+  if (categoria._count.productos > 0) {
+    redirect(`${listaUrl}?error=tiene-productos`);
   }
 
   await getDb().categoria.delete({ where: { id } });

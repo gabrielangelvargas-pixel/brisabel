@@ -8,7 +8,13 @@ import { getServerEnv } from "@/config/server-env";
 // Archivos subidos desde el panel, en una carpeta persistente fuera del
 // deploy. Se organizan por carpeta ("categorias", "productos"...).
 
-export type StorageFolder = "categorias";
+const storageFolders = ["categorias", "productos"] as const;
+
+export type StorageFolder = (typeof storageFolders)[number];
+
+export function isStorageFolder(value: string): value is StorageFolder {
+  return (storageFolders as readonly string[]).includes(value);
+}
 
 // Nombres generados por la app: letras, números, guiones y una extensión.
 const safeFileName = /^[a-z0-9][a-z0-9-]*\.(webp|jpg|png)$/;
