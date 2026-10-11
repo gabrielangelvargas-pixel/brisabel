@@ -43,3 +43,25 @@ model Sesion {
 
   @@index([usuarioId])
 }
+
+// Categorías del catálogo en árbol de hasta 3 niveles (0 = raíz, 1 = hija,
+// 2 = nieta). parentId es la fuente de verdad; ruta ("/1/4/9/") y nivel se
+// derivan y los mantiene la app al crear o mover una categoría.
+model Categoria {
+  id          Int         @id @default(autoincrement())
+  nombre      String      @db.VarChar(80)
+  slug        String      @unique @db.VarChar(100)
+  descripcion String?     @db.VarChar(300)
+  orden       Int         @default(0)
+  activa      Boolean     @default(true)
+  parentId    Int?
+  parent      Categoria?  @relation("Jerarquia", fields: [parentId], references: [id], onDelete: Restrict)
+  hijas       Categoria[] @relation("Jerarquia")
+  ruta        String      @db.VarChar(255)
+  nivel       Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([parentId, orden])
+  @@index([ruta])
+}

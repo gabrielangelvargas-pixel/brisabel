@@ -93,12 +93,21 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
   Sin acceso remoto a MySQL: `npm run admin:create -- --sql` y ejecutar el INSERT en phpMyAdmin.
 - Si una migración se aplica a mano en phpMyAdmin, hay que registrarla en `_prisma_migrations`; si no, `db:deploy` la intentará aplicar de nuevo.
 
+## Categorías
+
+- Árbol de hasta **3 niveles** (categoría › subcategoría › sub-subcategoría), administrado en `/admin/categorias`.
+- `parentId` es la fuente de verdad; `ruta` (`/1/4/9/`) y `nivel` se derivan y los mantiene la app al crear o mover (en una transacción, junto con todo el subárbol).
+- "Todo lo que hay debajo de X": `ruta LIKE '<ruta de X>%'` en una sola consulta.
+- Slug único global → URLs cortas (`/catalogo/aros-de-plata`).
+- No se puede eliminar una categoría con subcategorías. Los productos irán solo en categorías sin hijas (se aplicará al crear la tabla de productos).
+- Lógica pura del árbol en `src/features/categorias/tree.ts`.
+
 ## Hoja de ruta
 
 1. ~~Base del proyecto~~
 2. Base de datos (Prisma + MySQL)
 3. ~~Autenticación de administradores~~
-4. Categorías (ABM + catálogo público)
+4. Categorías (~~ABM en el panel~~, catálogo público pendiente)
 5. Productos
 6. Carrito y pedidos
 7. Deploy en Hostinger
