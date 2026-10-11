@@ -5,9 +5,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { ShareButton } from "@/components/ui/share-button";
 import { siteConfig } from "@/config/site";
 import { CategoriaGrid, CategoriaGridSkeleton } from "@/features/categorias/components/categoria-grid";
-import { IMAGEN_ALTO, IMAGEN_ANCHO } from "@/features/categorias/imagen-size";
+import { IMAGEN_ALTO, IMAGEN_ANCHO, IMAGEN_PROPORCION } from "@/features/categorias/imagen-size";
 import { getCategoriaPublica } from "@/features/categorias/public-queries";
 import { categoriaImagenUrl } from "@/features/categorias/tree";
 
@@ -22,8 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const { categoria, hijas } = resultado;
-  // Ej.: "Plata 900 / 925 de Brisabel: regalos que inspiran"
-  const tituloCompartir = `${categoria.nombre} de ${siteConfig.name}: ${siteConfig.tagline.toLowerCase()}`;
+  const titulo = tituloCompartir(categoria.nombre);
   const descripcion = categoria.descripcion ?? descripcionAutomatica(hijas.map((hija) => hija.nombre));
   const imagenUrl = categoriaImagenUrl(categoria.imagen);
   const imagen = imagenUrl
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       type: "website",
       url,
-      title: tituloCompartir,
+      title: titulo,
       description: descripcion,
       siteName: siteConfig.name,
       locale: siteConfig.locale,
@@ -46,11 +46,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: tituloCompartir,
+      title: titulo,
       description: descripcion,
       images: [imagen.url],
     },
   };
+}
+
+// Ej.: "Plata 900 / 925 de Brisabel: regalos que inspiran". Se usa en la vista
+// previa de redes y en el botón Compartir.
+function tituloCompartir(nombre: string) {
+  return `${nombre} de ${siteConfig.name}: ${siteConfig.tagline.toLowerCase()}`;
 }
 
 // Sin descripción cargada: no repetir el título. Si hay subcategorías se
@@ -116,15 +122,17 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
             {categoria.descripcion ? (
               <p className="mt-4 max-w-xl text-lg leading-8 text-muted">{categoria.descripcion}</p>
             ) : null}
+            <ShareButton className="mt-6" title={tituloCompartir(categoria.nombre)} />
           </div>
 
           {imagenUrl ? (
             <Image
               alt={categoria.nombre}
-              className="aspect-[1200/630] w-full rounded-[2rem] object-cover shadow-xl shadow-brand/10 ring-1 ring-black/5"
+              className="w-full rounded-[2rem] object-cover shadow-xl shadow-brand/10 ring-1 ring-black/5"
               height={IMAGEN_ALTO}
               loading="eager"
               src={imagenUrl}
+              style={IMAGEN_PROPORCION}
               unoptimized
               width={IMAGEN_ANCHO}
             />

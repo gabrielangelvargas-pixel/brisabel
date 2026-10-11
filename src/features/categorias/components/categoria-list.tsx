@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { eliminarCategoriaAction, moverCategoriaAction } from "@/features/categorias/actions";
+import { IMAGEN_ALTO, IMAGEN_ANCHO, IMAGEN_PROPORCION } from "@/features/categorias/imagen-size";
 import { categoriaImagenUrl, MAX_NIVEL } from "@/features/categorias/tree";
 import { cn } from "@/lib/cn";
 
@@ -50,15 +51,17 @@ export function CategoriaList({ categorias }: { categorias: CategoriaFila[] }) {
             {imagenUrl ? (
               <Image
                 alt=""
-                className="aspect-[1200/630] w-16 shrink-0 rounded border border-line object-cover"
-                height={630}
+                className="w-16 shrink-0 rounded border border-line object-cover"
+                height={IMAGEN_ALTO}
                 src={imagenUrl}
+                style={IMAGEN_PROPORCION}
                 unoptimized
-                width={1200}
+                width={IMAGEN_ANCHO}
               />
             ) : (
               <span
-                className="inline-flex aspect-[1200/630] w-16 shrink-0 items-center justify-center rounded border border-dashed border-line text-muted"
+                className="inline-flex w-16 shrink-0 items-center justify-center rounded border border-dashed border-line text-muted"
+                style={IMAGEN_PROPORCION}
                 title="Sin imagen"
               >
                 <ImageOff className="size-4" />

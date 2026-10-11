@@ -104,7 +104,7 @@ Las convenciones completas están en [AGENTS.md](AGENTS.md).
 - Lógica pura del árbol en `src/features/categorias/tree.ts`.
 - Público: `/catalogo` (principales) y `/catalogo/<slug>` (migas de pan, subcategorías y metadatos Open Graph para compartir). Una categoría oculta oculta también su subárbol.
 - Las lecturas públicas se cachean con la etiqueta `categorias` (`public-queries.ts`); las acciones del panel la invalidan con `updateTag`, así los cambios se ven al instante. Se leen por request, nunca durante el build.
-- Imagen opcional: se recorta a **1200×630 WebP** (tarjetas y vista previa al compartir en redes) y se guarda en `BRISABEL_UPLOADS_DIR/categorias` con nombre único por versión. Se sirve en `/media/categorias/<archivo>` con caché de un año.
+- Imagen opcional: se recorta a **1200×630 WebP** (medidas en `src/features/categorias/imagen-size.ts`) (tarjetas y vista previa al compartir en redes) y se guarda en `BRISABEL_UPLOADS_DIR/categorias` con nombre único por versión. Se sirve en `/media/categorias/<archivo>` con caché de un año.
 
 ## Hoja de ruta
 

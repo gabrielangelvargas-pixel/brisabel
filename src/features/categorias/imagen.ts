@@ -4,7 +4,7 @@ import sharp from "sharp";
 
 import { IMAGEN_ALTO, IMAGEN_ANCHO } from "@/features/categorias/imagen-size";
 
-// Imagen de categoría: se recorta y convierte a 1200x630 WebP.
+// Imagen de categoría: se recorta a IMAGEN_ANCHO x IMAGEN_ALTO y se convierte a WebP.
 const maxBytes = 8 * 1024 * 1024;
 
 export type ImagenProcesada = { ok: true; data: Buffer } | { ok: false; error: string };

@@ -26,7 +26,7 @@ export function CategoriaGrid({ categorias }: { categorias: CategoriaTarjeta[] }
               href={`/catalogo/${categoria.slug}`}
             >
               {imagenUrl ? (
-                // Ya viene optimizada (WebP 1200x630) desde el panel.
+                // Ya viene optimizada (WebP) desde el panel.
                 <Image
                   alt=""
                   className="object-cover transition duration-700 ease-out group-hover:scale-105"
