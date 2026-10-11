@@ -17,11 +17,26 @@
   --color-accent: #c93a54;
   --color-accent-soft: #ffe4e8;
   --color-heart: #fd687a;
+  --color-sand: #f4ede4;
+
+  --animate-fade-up: fade-up 0.7s ease-out both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-playfair);
 }
 
 body {

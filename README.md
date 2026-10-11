@@ -56,6 +56,8 @@ Otros:
 
 - `public/brand/logo.png`: logo optimizado para la web (800 px). El original en alta está en `assets/brand/` (no se publica).
 - `public/og.png`: imagen para compartir en redes (1200x630).
+- `src/assets/home/`: imágenes de la Home (portada y recortes por categoría), importadas estáticamente para que Next las optimice. La foto original está en `assets/images/`.
+- Textos y categorías de la Home: `src/features/home/content.ts`.
 
 Las convenciones completas están en [AGENTS.md](AGENTS.md).
 

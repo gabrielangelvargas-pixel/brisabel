@@ -4,4 +4,7 @@ export type NavItem = {
 };
 
 // Enlaces del menú lateral. Se agregan a medida que existan las páginas.
-export const mainNavigation: NavItem[] = [{ label: "Inicio", href: "/" }];
+export const mainNavigation: NavItem[] = [
+  { label: "Inicio", href: "/" },
+  { label: "Catálogo", href: "/catalogo" },
+];
