@@ -80,6 +80,35 @@ function errorDeDuplicado(error: unknown): ProductoFormState["fieldErrors"] | nu
   return null;
 }
 
+// Slug generado del nombre: si ya existe, prueba "slug-2", "slug-3"...
+// Un slug escrito a mano se respeta (si está repetido, se informa el error).
+async function conSlugDisponible(data: ProductoInput, excluirId?: number): Promise<ProductoInput> {
+  if (!data.slugAuto) {
+    return data;
+  }
+
+  const ocupados = new Set(
+    (
+      await getDb().producto.findMany({
+        where: {
+          OR: [{ slug: data.slug }, { slug: { startsWith: `${data.slug}-` } }],
+          ...(excluirId ? { NOT: { id: excluirId } } : {}),
+        },
+        select: { slug: true },
+      })
+    ).map((p) => p.slug),
+  );
+
+  let slug = data.slug;
+
+  for (let n = 2; ocupados.has(slug); n++) {
+    const sufijo = `-${n}`;
+    slug = `${data.slug.slice(0, 170 - sufijo.length)}${sufijo}`;
+  }
+
+  return { ...data, slug };
+}
+
 function datos(data: ProductoInput) {
   return {
     sku: data.sku,
@@ -105,12 +134,13 @@ export async function crearProductoAction(
 ): Promise<ProductoFormState> {
   await requireAdmin();
 
-  const { values, data, fieldErrors } = parse(formData);
+  const { values, data: leido, fieldErrors } = parse(formData);
 
-  if (!data) {
+  if (!leido) {
     return { values, fieldErrors };
   }
 
+  const data = await conSlugDisponible(leido);
   const errorCategoria = await validarCategoria(data.categoriaId);
 
   if (errorCategoria) {
@@ -158,12 +188,13 @@ export async function editarProductoAction(
 ): Promise<ProductoFormState> {
   await requireAdmin();
 
-  const { values, data, fieldErrors } = parse(formData);
+  const { values, data: leido, fieldErrors } = parse(formData);
 
-  if (!data) {
+  if (!leido) {
     return { values, fieldErrors };
   }
 
+  const data = await conSlugDisponible(leido, id);
   const actual = await getDb().producto.findUnique({
     where: { id },
     select: { categoriaId: true, imagen: true },

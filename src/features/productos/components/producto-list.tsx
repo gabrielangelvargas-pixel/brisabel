@@ -1,4 +1,4 @@
-import { EyeOff, ImageOff, Pencil, Star, Trash2 } from "lucide-react";
+import { Copy, EyeOff, ImageOff, Pencil, Sparkles, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -56,7 +56,7 @@ export function ProductoList({ productos }: { productos: ProductoFila[] }) {
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-2 font-medium">
                 <span className="truncate">{producto.nombre}</span>
-                {producto.destacado ? <Star aria-label="Destacado" className="size-4 shrink-0 fill-heart text-heart" /> : null}
+                {producto.destacado ? <Sparkles aria-label="Destacado" className="size-4 shrink-0 text-gold" /> : null}
                 {!producto.activo ? (
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent">
                     <EyeOff className="size-3" />
@@ -77,6 +77,14 @@ export function ProductoList({ productos }: { productos: ProductoFila[] }) {
             <div className="flex shrink-0 items-center">
               <Link aria-label={`Editar ${producto.nombre}`} className={iconButton} href={`/admin/productos/${producto.id}`} title="Editar">
                 <Pencil className="size-4" />
+              </Link>
+              <Link
+                aria-label={`Duplicar ${producto.nombre}`}
+                className={iconButton}
+                href={`/admin/productos/nuevo?duplicar=${producto.id}`}
+                title="Duplicar"
+              >
+                <Copy className="size-4" />
               </Link>
               <form action={eliminarProductoAction}>
                 <input name="id" type="hidden" value={producto.id} />

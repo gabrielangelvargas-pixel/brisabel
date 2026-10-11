@@ -47,7 +47,13 @@ export const productoSchema = z
     activo: z.boolean(),
     destacado: z.boolean(),
   })
-  .transform((data) => ({ ...data, slug: slugify(data.slug || data.nombre).slice(0, 170) }))
+  .transform((data) => ({
+    ...data,
+    // slugAuto: se generó del nombre (no lo escribió el usuario). Si está
+    // ocupado, se le agrega un número en lugar de dar error.
+    slugAuto: !data.slug,
+    slug: slugify(data.slug || data.nombre).slice(0, 170),
+  }))
   .refine((data) => data.slug.length >= 2, {
     message: "El nombre o el slug deben tener letras o números.",
     path: ["slug"],
