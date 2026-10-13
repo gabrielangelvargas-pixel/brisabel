@@ -99,42 +99,28 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
             </div>
 
             {conVariantes ? (
-              <div>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm">
-                    {variacion}: <span className="font-semibold">{elegida.variante}</span>
-                  </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm">
+                  {variacion}: <span className="font-semibold">{elegida.variante}</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted tabular-nums">
+                    {indice + 1}/{variantes.length}
+                  </span>
                   {botonSiguiente}
-                </div>
-                <div aria-label={variacion} className="mt-3 flex flex-wrap gap-2" role="group">
-                  {variantes.map((variante, i) => (
-                    <button
-                      aria-pressed={i === indice}
-                      className={cn(
-                        "rounded-full border px-3 py-1.5 text-sm font-medium transition",
-                        i === indice
-                          ? destacado
-                            ? "border-gold-strong bg-gold-strong text-white"
-                            : "border-brand bg-brand text-white"
-                          : "border-line bg-surface hover:border-brand/40",
-                      )}
-                      key={variante.id}
-                      onClick={() => setIndice(i)}
-                      type="button"
-                    >
-                      {variante.variante}
-                    </button>
-                  ))}
                 </div>
               </div>
             ) : null}
 
-            <div className="mt-auto border-t border-line pt-5">
-              <p className={cn("text-3xl font-bold tabular-nums", destacado ? "text-gold-strong" : "text-brand")}>
-                {formatPrecio(elegida.precioVenta)}
-              </p>
-              <p className="mt-1 text-xs text-muted">Código: {elegida.sku}</p>
-              <div className="mt-5">
+            {/* Código a la izquierda y precio a la derecha, en una sola línea. */}
+            <div className="mt-auto border-t border-line pt-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-xs text-muted">Código: {elegida.sku}</p>
+                <p className={cn("text-3xl font-bold tabular-nums", destacado ? "text-gold-strong" : "text-brand")}>
+                  {formatPrecio(elegida.precioVenta)}
+                </p>
+              </div>
+              <div className="mt-4">
                 <AgregarAlCarrito
                   destacado={destacado}
                   item={{
