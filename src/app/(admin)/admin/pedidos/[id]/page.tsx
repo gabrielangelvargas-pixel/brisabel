@@ -43,6 +43,12 @@ async function Detalle({ params, searchParams }: Props) {
   }
 
   const { ok } = await searchParams;
+  // Retiro: teléfono del pedido. Envío: el de la dirección elegida.
+  const telefono = pedido.direccion
+    ? { numero: pedido.direccion.telefono, tipo: pedido.direccion.telefonoTipo }
+    : pedido.telefono
+      ? { numero: pedido.telefono, tipo: null }
+      : null;
 
   return (
     <>
@@ -104,18 +110,20 @@ async function Detalle({ params, searchParams }: Props) {
                 {pedido.usuario.dni ? ` · DNI ${pedido.usuario.dni}` : ""}
               </span>
             </p>
-            <a className="inline-flex items-center gap-2 font-medium text-accent hover:underline" href={`tel:${pedido.telefono}`}>
-              <Phone className="size-4" />
-              {pedido.telefono}
-              {pedido.telefonoTipo ? <span className="text-xs font-normal text-muted">({TELEFONO_TIPOS[pedido.telefonoTipo]})</span> : null}
-            </a>
+            {telefono ? (
+              <a className="inline-flex items-center gap-2 font-medium text-accent hover:underline" href={`tel:${telefono.numero}`}>
+                <Phone className="size-4" />
+                {telefono.numero}
+                {telefono.tipo ? <span className="text-xs font-normal text-muted">({TELEFONO_TIPOS[telefono.tipo]})</span> : null}
+              </a>
+            ) : null}
             <div>
               <p className="font-medium">{ENTREGAS[pedido.entrega]}</p>
-              {pedido.entrega === "ENVIO" ? (
+              {pedido.direccion ? (
                 <p className="text-muted">
-                  {pedido.direccion}
+                  {pedido.direccion.calle}
                   <span className="block">
-                    {[pedido.barrio, pedido.ciudad, pedido.provincia].filter(Boolean).join(", ")}
+                    {pedido.direccion.barrio}, {pedido.direccion.ciudad}, {pedido.direccion.provincia}
                   </span>
                 </p>
               ) : null}

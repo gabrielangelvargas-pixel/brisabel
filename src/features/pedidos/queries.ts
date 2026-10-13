@@ -16,6 +16,7 @@ export async function getPedidosAdmin(filtros: { estado?: EstadoPedido }) {
       nombre: true,
       telefono: true,
       entrega: true,
+      direccion: { select: { telefono: true, ciudad: true } },
       total: true,
       creado: true,
       _count: { select: { items: true } },
@@ -28,6 +29,7 @@ export async function getPedidoAdmin(id: number) {
     where: { id },
     include: {
       usuario: { select: { username: true, dni: true } },
+      direccion: true,
       items: {
         orderBy: { id: "asc" },
         include: { producto: { select: { imagen: true } } },

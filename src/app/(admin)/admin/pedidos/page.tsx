@@ -79,7 +79,8 @@ async function Listado({ searchParams }: Pick<PageProps<"/admin/pedidos">, "sear
                 <span className="min-w-0">
                   <span className="block truncate font-medium">{pedido.nombre}</span>
                   <span className="block text-xs text-muted">
-                    {pedido.telefono} · {ENTREGAS[pedido.entrega]} · {pedido._count.items}{" "}
+                    {pedido.direccion?.telefono ?? pedido.telefono} · {ENTREGAS[pedido.entrega]}
+                    {pedido.direccion ? ` (${pedido.direccion.ciudad})` : ""} · {pedido._count.items}{" "}
                     {pedido._count.items === 1 ? "producto" : "productos"}
                   </span>
                 </span>

@@ -128,27 +128,23 @@ enum TipoEntrega {
 // Pedido hecho desde el carrito por un usuario con sesión. Los precios se
 // calculan en el servidor al confirmar y quedan fijos en los ítems.
 model Pedido {
-  id           Int           @id @default(autoincrement())
-  usuarioId    String        @db.VarChar(30)
-  usuario      Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
-  estado       EstadoPedido  @default(PENDIENTE)
-  // Datos de contacto y entrega cargados al finalizar la compra. Con envío se
-  // copian de la dirección elegida (si después la editan, el pedido no cambia).
-  nombre       String        @db.VarChar(120)
-  telefonoTipo TelefonoTipo?
-  telefono     String        @db.VarChar(30)
-  entrega      TipoEntrega
-  direccionId  Int?
-  direccionRef Direccion?    @relation(fields: [direccionId], references: [id], onDelete: SetNull)
-  direccion    String?       @db.VarChar(200) // calle y número
-  barrio       String?       @db.VarChar(100)
-  ciudad       String?       @db.VarChar(100)
-  provincia    String?       @db.VarChar(60)
-  notas        String?       @db.VarChar(500)
-  total        Decimal       @db.Decimal(12, 2)
-  items        PedidoItem[]
-  creado       DateTime      @default(now())
-  modificado   DateTime      @updatedAt
+  id          Int          @id @default(autoincrement())
+  usuarioId   String       @db.VarChar(30)
+  usuario     Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  estado      EstadoPedido @default(PENDIENTE)
+  // Datos cargados al finalizar la compra.
+  // Retiro: teléfono de contacto. Envío: la dirección elegida (con su teléfono).
+  nombre      String       @db.VarChar(120)
+  entrega     TipoEntrega
+  telefono    String?      @db.VarChar(30)
+  direccionId Int?
+  // Restrict: una dirección usada en un pedido no se puede borrar.
+  direccion   Direccion?   @relation(fields: [direccionId], references: [id], onDelete: Restrict)
+  notas       String?      @db.VarChar(500)
+  total       Decimal      @db.Decimal(12, 2)
+  items       PedidoItem[]
+  creado      DateTime     @default(now())
+  modificado  DateTime     @updatedAt
 
   @@index([usuarioId, creado])
   @@index([estado, creado])

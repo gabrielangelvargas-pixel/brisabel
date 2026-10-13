@@ -97,28 +97,17 @@ export async function crearPedidoAction(_prev: PedidoState, formData: FormData):
 
   try {
     pedido = await db.$transaction(async (tx) => {
-      let contacto: Pick<
-        Prisma.PedidoUncheckedCreateInput,
-        "telefono" | "telefonoTipo" | "direccionId" | "direccion" | "barrio" | "ciudad" | "provincia"
-      > = { telefono: datos.telefono.trim() };
+      // Retiro: solo el teléfono. Envío: la dirección (nueva se guarda para la
+      // próxima; guardada se marca como la última usada).
+      let direccionId: number | null = null;
 
       if (datos.entrega === "ENVIO") {
-        // Nueva: se guarda para la próxima. Guardada: se marca como la última usada.
         const direccion = guardada
           ? await tx.direccion.update({ where: { id: guardada.id }, data: { modificado: new Date() } })
           : await tx.direccion.create({
               data: { usuarioId: usuario.id, ...direccionSchema.parse(direccionNueva(datos)) },
             });
-
-        contacto = {
-          telefono: direccion.telefono,
-          telefonoTipo: direccion.telefonoTipo,
-          direccionId: direccion.id,
-          direccion: direccion.calle,
-          barrio: direccion.barrio,
-          ciudad: direccion.ciudad,
-          provincia: direccion.provincia,
-        };
+        direccionId = direccion.id;
       }
 
       return tx.pedido.create({
@@ -126,7 +115,8 @@ export async function crearPedidoAction(_prev: PedidoState, formData: FormData):
           usuarioId: usuario.id,
           nombre: datos.nombre,
           entrega: datos.entrega,
-          ...contacto,
+          telefono: datos.entrega === "RETIRO" ? datos.telefono.trim() : null,
+          direccionId,
           notas: datos.notas,
           total,
           items: { create: items },
