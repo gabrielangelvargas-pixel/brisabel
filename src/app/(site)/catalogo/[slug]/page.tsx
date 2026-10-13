@@ -13,6 +13,7 @@ import { getCategoriaPublica } from "@/features/categorias/public-queries";
 import { categoriaImagenUrl } from "@/features/categorias/tree";
 import { ProductoGrid } from "@/features/productos/components/producto-grid";
 import { getProductosDeCategorias } from "@/features/productos/public-queries";
+import { cn } from "@/lib/cn";
 
 type Props = PageProps<"/catalogo/[slug]">;
 
@@ -95,38 +96,52 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
 
   const { categoria, migas, hijas, subarbol } = resultado;
   const imagenUrl = categoriaImagenUrl(categoria.imagen);
+  // Columna de texto: sin imagen va el título; con imagen, solo si hay migas o descripción.
+  const textoVisible = !imagenUrl || migas.length > 0 || Boolean(categoria.descripcion);
 
   return (
     <>
       <section className="bg-sand">
-        <div className="mx-auto grid w-full max-w-7xl items-center gap-5 px-5 py-5 sm:py-8 md:grid-cols-[1fr_1.1fr] md:gap-10">
-          <div>
-            {/* Migas: solo las categorías superiores (en una principal no hay). */}
-            {migas.length > 0 ? (
-              <nav aria-label="Migas de pan" className="mb-2">
-                <ol className="flex flex-wrap items-center gap-1 text-sm text-muted">
-                  {migas.map((miga, index) => (
-                    <li className="flex items-center gap-1" key={miga.id}>
-                      {index > 0 ? <ChevronRight className="size-3.5" /> : null}
-                      <Link className="hover:text-accent" href={`/catalogo/${miga.slug}`}>
-                        {miga.nombre}
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            ) : null}
-            <div className="flex items-start justify-between gap-3">
-              <h1 className="font-display text-2xl leading-tight font-semibold text-brand sm:text-3xl lg:text-4xl">
-                {categoria.nombre}
-              </h1>
-              {/* Sin imagen, el botón Compartir va junto al título. */}
-              {!imagenUrl ? <ShareButton title={tituloCompartir(categoria.nombre)} variant="icon" /> : null}
+        <div
+          className={cn(
+            "mx-auto grid w-full max-w-7xl items-center gap-5 px-5 py-5 sm:py-8 md:gap-10",
+            textoVisible && imagenUrl && "md:grid-cols-[1fr_1.1fr]",
+          )}
+        >
+          {/* Con imagen, el título ya está en ella: queda solo para lectores de pantalla y buscadores. */}
+          {imagenUrl ? <h1 className="sr-only">{categoria.nombre}</h1> : null}
+
+          {textoVisible ? (
+            <div>
+              {/* Migas: solo las categorías superiores (en una principal no hay). */}
+              {migas.length > 0 ? (
+                <nav aria-label="Migas de pan" className="mb-2">
+                  <ol className="flex flex-wrap items-center gap-1 text-sm text-muted">
+                    {migas.map((miga, index) => (
+                      <li className="flex items-center gap-1" key={miga.id}>
+                        {index > 0 ? <ChevronRight className="size-3.5" /> : null}
+                        <Link className="hover:text-accent" href={`/catalogo/${miga.slug}`}>
+                          {miga.nombre}
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+              ) : null}
+              {!imagenUrl ? (
+                <div className="flex items-start justify-between gap-3">
+                  <h1 className="font-display text-2xl leading-tight font-semibold text-brand sm:text-3xl lg:text-4xl">
+                    {categoria.nombre}
+                  </h1>
+                  {/* Sin imagen, el botón Compartir va junto al título. */}
+                  <ShareButton title={tituloCompartir(categoria.nombre)} variant="icon" />
+                </div>
+              ) : null}
+              {categoria.descripcion ? (
+                <p className="mt-2 max-w-xl leading-7 text-muted sm:text-lg">{categoria.descripcion}</p>
+              ) : null}
             </div>
-            {categoria.descripcion ? (
-              <p className="mt-2 max-w-xl leading-7 text-muted sm:text-lg">{categoria.descripcion}</p>
-            ) : null}
-          </div>
+          ) : null}
 
           {imagenUrl ? (
             <div className="relative">
@@ -152,15 +167,12 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
 
       <section className="mx-auto w-full max-w-7xl px-5 py-6 sm:py-10">
         {hijas.length > 0 ? (
-          <div className="mb-8 sm:mb-12">
-            <h2 className="font-display text-xl font-semibold text-brand sm:text-2xl">Explorá {categoria.nombre}</h2>
-            <div className="mt-5">
-              <CategoriaGrid categorias={hijas} />
-            </div>
-          </div>
+          <nav aria-label="Subcategorías" className="mb-8 sm:mb-10">
+            <CategoriaGrid categorias={hijas} miniatura />
+          </nav>
         ) : null}
         {/* Todos los productos de la categoría y sus subcategorías, sin filtrar. */}
-        <ProductosDeCategoria categoriaIds={subarbol} titulo={hijas.length > 0 ? `Todo en ${categoria.nombre}` : null} />
+        <ProductosDeCategoria categoriaIds={subarbol} titulo={hijas.length > 0 ? "Productos" : null} />
       </section>
     </>
   );
