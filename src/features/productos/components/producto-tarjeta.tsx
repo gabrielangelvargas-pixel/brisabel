@@ -92,7 +92,7 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
             {destacado ? <BadgeDestacado className="absolute top-3 left-3" /> : null}
           </div>
 
-          <div className="flex flex-col gap-5 p-5 sm:p-8">
+          <div className="flex flex-col gap-3 p-5 sm:gap-4 sm:p-8">
             <div className="pr-10">
               <p className="text-xs font-semibold tracking-[0.16em] text-accent uppercase">{categoria}</p>
               <h2 className="mt-2 font-display text-2xl leading-tight font-semibold text-brand sm:text-3xl">{nombre}</h2>
@@ -113,14 +113,14 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
             ) : null}
 
             {/* Código a la izquierda y precio a la derecha, en una sola línea. */}
-            <div className="mt-auto border-t border-line pt-4">
+            <div className="mt-auto border-t border-line pt-3">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="text-xs text-muted">Código: {elegida.sku}</p>
                 <p className={cn("text-3xl font-bold tabular-nums", destacado ? "text-gold-strong" : "text-brand")}>
                   {formatPrecio(elegida.precioVenta)}
                 </p>
               </div>
-              <div className="mt-4">
+              <div className="mt-3">
                 <AgregarAlCarrito
                   destacado={destacado}
                   item={{
@@ -138,7 +138,7 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
 
           <button
             aria-label="Cerrar"
-            className="absolute top-3 right-3 inline-flex size-10 items-center justify-center rounded-full bg-surface/95 text-ink shadow-md ring-1 ring-black/5 transition hover:bg-brand-soft"
+            className="absolute top-3 right-3 inline-flex size-10 items-center justify-center rounded-full bg-neutral-800/90 text-white shadow-md transition hover:bg-neutral-900"
             onClick={() => dialogRef.current?.close()}
             type="button"
           >
