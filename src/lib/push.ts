@@ -22,22 +22,26 @@ export type AvisoPush = {
 // Clave pública para suscribirse desde el navegador; null si no hay claves
 // configuradas (el sitio funciona igual, sin ofrecer avisos).
 export function getPushPublicKey() {
-  const env = getServerEnv();
-  return env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY ? env.VAPID_PUBLIC_KEY : null;
+  return getServerEnv().push?.VAPID_PUBLIC_KEY ?? null;
 }
 
 let configurado = false;
 
 function configurar() {
-  const env = getServerEnv();
+  const push = getServerEnv().push;
 
-  if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
+  if (!push) {
     return false;
   }
 
   if (!configurado) {
-    webpush.setVapidDetails(env.VAPID_SUBJECT ?? "https://brisabel.com.ar", env.VAPID_PUBLIC_KEY, env.VAPID_PRIVATE_KEY);
-    configurado = true;
+    try {
+      webpush.setVapidDetails(push.VAPID_SUBJECT, push.VAPID_PUBLIC_KEY, push.VAPID_PRIVATE_KEY);
+      configurado = true;
+    } catch (error) {
+      console.error("Push: claves VAPID inválidas", error);
+      return false;
+    }
   }
 
   return true;
