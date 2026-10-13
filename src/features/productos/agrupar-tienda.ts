@@ -1,8 +1,8 @@
 import type { ProductoPublico } from "@/features/productos/public-queries";
 
 // Arma las tarjetas de la tienda: los productos de un mismo modelo se juntan
-// en una tarjeta; el resto va solo. Se respeta el orden recibido (destacados
-// primero): cada modelo ocupa el lugar de su primer producto.
+// en una tarjeta; el resto va solo. Se respeta el orden recibido (por
+// categoría y fecha de modificación): cada modelo ocupa el lugar de su primer producto.
 
 export type TarjetaTienda =
   | { tipo: "producto"; producto: ProductoPublico }

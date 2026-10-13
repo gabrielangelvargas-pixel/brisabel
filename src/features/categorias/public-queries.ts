@@ -3,7 +3,7 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { connection } from "next/server";
 
-import { buildTree, idsFromRuta } from "@/features/categorias/tree";
+import { buildTree, flattenTree, idsFromRuta } from "@/features/categorias/tree";
 import { getDb } from "@/lib/db";
 
 // Lecturas del catálogo público. Se cachean con la etiqueta "categorias", que
@@ -65,7 +65,8 @@ export async function getCategoriasPrincipales() {
 }
 
 // Categoría por slug con sus migas de pan (ancestros), sus hijas visibles y los
-// ids de todo su subárbol visible (ella incluida) para listar sus productos.
+// ids de todo su subárbol visible (ella incluida) para listar sus productos, en
+// el mismo orden en que se muestran las categorías (padre, luego sus hijas).
 export async function getCategoriaPublica(slug: string) {
   const visibles = await getCategoriasVisibles();
   const categoria = visibles.find((c) => c.slug === slug);
@@ -81,7 +82,7 @@ export async function getCategoriaPublica(slug: string) {
     .filter((c): c is CategoriaPublica => Boolean(c));
   const hijas = buildTree(visibles.filter((c) => c.parentId === categoria.id));
 
-  const subarbol = visibles.filter((c) => c.ruta.startsWith(categoria.ruta)).map((c) => c.id);
+  const subarbol = flattenTree(buildTree(visibles.filter((c) => c.ruta.startsWith(categoria.ruta)))).map((c) => c.id);
 
   return { categoria, migas, hijas, subarbol };
 }

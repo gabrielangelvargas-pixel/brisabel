@@ -21,6 +21,7 @@ export type ProductoPublico = {
   variante: string | null;
   ordenVariante: number;
   modelo: { id: number; nombre: string; variacion: string } | null;
+  categoriaId: number;
   categoria: string; // nombre de su categoría (hoja)
 };
 
@@ -34,15 +35,17 @@ const SELECT_PUBLICO = {
   destacado: true,
   variante: true,
   ordenVariante: true,
+  categoriaId: true,
   modelo: { select: { id: true, nombre: true, variacion: true } },
   categoria: { select: { nombre: true } },
 } satisfies Prisma.ProductoSelect;
 
-// Productos activos (destacados primero), ya serializados para la tienda.
+// Productos activos (los modificados más recientemente primero), ya
+// serializados para la tienda.
 async function buscarPublicos(where: Prisma.ProductoWhereInput): Promise<ProductoPublico[]> {
   const productos = await getDb().producto.findMany({
     where: { ...where, activo: true },
-    orderBy: [{ destacado: "desc" }, { nombre: "asc" }],
+    orderBy: [{ modificado: "desc" }, { id: "desc" }],
     select: SELECT_PUBLICO,
   });
 
@@ -58,11 +61,17 @@ async function getProductosDeCategoriasCache(categoriaIds: number[]) {
 }
 
 // Productos de una o varias categorías (ej. una categoría padre y todo su
-// subárbol). Se lee en el request (luego queda en caché), nunca en el build.
+// subárbol), ordenados según el orden de `categoriaIds` y, dentro de cada
+// categoría, los modificados más recientemente primero. Se lee en el request
+// (luego queda en caché), nunca en el build.
 export async function getProductosDeCategorias(categoriaIds: number[]) {
   await connection();
 
-  return getProductosDeCategoriasCache([...categoriaIds].sort((a, b) => a - b));
+  const productos = await getProductosDeCategoriasCache([...categoriaIds].sort((a, b) => a - b));
+  const posicion = new Map(categoriaIds.map((id, i) => [id, i]));
+
+  // sort es estable: se mantiene el orden por fecha dentro de cada categoría.
+  return productos.toSorted((a, b) => (posicion.get(a.categoriaId) ?? 0) - (posicion.get(b.categoriaId) ?? 0));
 }
 
 async function getProductoPorSlugCache(slug: string) {
