@@ -24,12 +24,15 @@ export function FinalizarCompra({
   nombreUsuario,
   direcciones,
   pushPublicKey,
+  telefonoSugerido,
 }: {
   nombreUsuario: string;
   // Direcciones guardadas del usuario (para envío a domicilio).
   direcciones: DireccionGuardada[];
   // Clave para avisos push (null si no están configurados).
   pushPublicKey: string | null;
+  // Teléfono ya usado por el cliente, para precargar en retiro.
+  telefonoSugerido: string | null;
 }) {
   const items = useCarrito();
   const [state, formAction, isPending] = useActionState(crearPedidoAction, initialState);
@@ -76,6 +79,7 @@ export function FinalizarCompra({
           key={JSON.stringify(state.values ?? {})}
           nombreUsuario={nombreUsuario}
           state={state}
+          telefonoSugerido={telefonoSugerido}
         />
 
         <Resumen error={state.error} isPending={isPending} items={items} />
@@ -88,10 +92,12 @@ function DatosEntrega({
   state,
   nombreUsuario,
   direcciones,
+  telefonoSugerido,
 }: {
   state: PedidoState;
   nombreUsuario: string;
   direcciones: DireccionGuardada[];
+  telefonoSugerido: string | null;
 }) {
   const values = state.values;
   const errors = state.fieldErrors ?? {};
@@ -147,7 +153,7 @@ function DatosEntrega({
       ) : (
         <Field
           autoComplete="tel"
-          defaultValue={values?.telefono}
+          defaultValue={values?.telefono ?? telefonoSugerido ?? undefined}
           error={errors.telefono}
           hint="Preferentemente con WhatsApp. Te avisamos cuando esté listo para retirar."
           id="pedido-telefono"

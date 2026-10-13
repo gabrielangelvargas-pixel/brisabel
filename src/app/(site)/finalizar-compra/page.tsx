@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { getDireccionesDeUsuario } from "@/features/direcciones/queries";
 import { FinalizarCompra } from "@/features/pedidos/components/finalizar-compra";
+import { getTelefonoSugerido } from "@/features/pedidos/queries";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getPushPublicKey } from "@/lib/push";
 
@@ -30,7 +31,17 @@ async function Contenido() {
     redirect("/ingresar?volver=/finalizar-compra");
   }
 
-  const direcciones = await getDireccionesDeUsuario(usuario.id);
+  const [direcciones, telefono] = await Promise.all([
+    getDireccionesDeUsuario(usuario.id),
+    getTelefonoSugerido(usuario.id),
+  ]);
 
-  return <FinalizarCompra direcciones={direcciones} nombreUsuario={usuario.nombre} pushPublicKey={getPushPublicKey()} />;
+  return (
+    <FinalizarCompra
+      direcciones={direcciones}
+      nombreUsuario={usuario.nombre}
+      pushPublicKey={getPushPublicKey()}
+      telefonoSugerido={telefono}
+    />
+  );
 }
