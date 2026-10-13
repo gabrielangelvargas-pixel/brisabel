@@ -4,6 +4,10 @@ import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/features/auth/actions";
+import { PerfilDatos } from "@/features/cuenta/components/perfil-datos";
+import { getPerfil } from "@/features/cuenta/queries";
+import { MisDirecciones } from "@/features/direcciones/components/mis-direcciones";
+import { getDireccionesDeUsuario } from "@/features/direcciones/queries";
 import { EstadoBadge } from "@/features/pedidos/components/estado-badge";
 import { numeroPedido } from "@/features/pedidos/estados";
 import { getPedidosDeUsuario } from "@/features/pedidos/queries";
@@ -28,20 +32,17 @@ export default function ProfilePage() {
 
 async function ProfileDetails() {
   const user = await requireUser();
-  const pedidos = await getPedidosDeUsuario(user.id);
+  const [perfil, direcciones, pedidos] = await Promise.all([
+    getPerfil(user.id),
+    getDireccionesDeUsuario(user.id),
+    getPedidosDeUsuario(user.id),
+  ]);
 
   return (
     <>
-      <dl className="mt-6 grid gap-4 rounded-lg border border-line bg-surface p-5 sm:grid-cols-2">
-        <div>
-          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Nombre</dt>
-          <dd className="mt-1">{user.nombre}</dd>
-        </div>
-        <div>
-          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Usuario</dt>
-          <dd className="mt-1">{user.username}</dd>
-        </div>
-      </dl>
+      <PerfilDatos dni={perfil?.dni ?? null} nombre={perfil?.nombre ?? user.nombre} username={perfil?.username ?? user.username} />
+
+      <MisDirecciones direcciones={direcciones} />
 
       <section className="mt-8">
         <h2 className="text-xl font-semibold">Mis pedidos</h2>

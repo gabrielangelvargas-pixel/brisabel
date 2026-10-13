@@ -187,9 +187,12 @@ model Direccion {
   telefonoTipo TelefonoTipo
   telefono     String       @db.VarChar(30)
   pedidos      Pedido[]
+  // Archivada: el usuario la editó o la borró pero ya se usó en un pedido;
+  // queda solo para esos pedidos y no se ofrece más.
+  archivada    Boolean      @default(false)
   creado       DateTime     @default(now())
   // Se actualiza al usarla: la usada más recientemente se ofrece primero.
   modificado   DateTime     @updatedAt
 
-  @@index([usuarioId, modificado])
+  @@index([usuarioId, archivada, modificado])
 }

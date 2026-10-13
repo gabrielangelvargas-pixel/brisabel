@@ -86,7 +86,7 @@ export async function crearPedidoAction(_prev: PedidoState, formData: FormData):
   // Dirección guardada: tiene que ser del usuario.
   const guardada =
     datos.entrega === "ENVIO" && datos.direccionId !== "nueva"
-      ? await db.direccion.findFirst({ where: { id: Number(datos.direccionId), usuarioId: usuario.id }, select: { id: true } })
+      ? await db.direccion.findFirst({ where: { id: Number(datos.direccionId), usuarioId: usuario.id, archivada: false }, select: { id: true } })
       : null;
 
   if (datos.entrega === "ENVIO" && datos.direccionId !== "nueva" && !guardada) {

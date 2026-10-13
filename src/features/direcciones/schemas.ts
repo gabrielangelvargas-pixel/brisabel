@@ -45,3 +45,21 @@ export const direccionSchema = z.object({
 });
 
 export type DireccionCampo = keyof z.infer<typeof direccionSchema>;
+
+export type DireccionFormValues = Partial<Record<Exclude<DireccionCampo, "telefono"> | "direccionTelefono", string>>;
+
+// Campos del formulario de dirección. El número va en "direccionTelefono" para
+// no chocar con el teléfono de retiro en "Finalizar compra".
+export function leerDireccionForm(formData: FormData) {
+  const texto = (campo: string) => String(formData.get(campo) ?? "");
+  const values: DireccionFormValues = {
+    calle: texto("calle"),
+    barrio: texto("barrio"),
+    ciudad: texto("ciudad"),
+    provincia: texto("provincia"),
+    telefonoTipo: texto("telefonoTipo"),
+    direccionTelefono: texto("direccionTelefono"),
+  };
+
+  return { values, input: { ...values, telefono: values.direccionTelefono } };
+}

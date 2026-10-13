@@ -3,9 +3,9 @@
 import { MapPin, Plus } from "lucide-react";
 import { useState } from "react";
 
-import { Field, SelectField } from "@/components/ui/field";
+import { DireccionCampos } from "@/features/direcciones/components/direccion-campos";
 import type { DireccionGuardada } from "@/features/direcciones/queries";
-import { PROVINCIAS, TELEFONO_TIPOS } from "@/features/direcciones/schemas";
+import { TELEFONO_TIPOS } from "@/features/direcciones/schemas";
 import { cn } from "@/lib/cn";
 
 type Campos = "direccionId" | "calle" | "barrio" | "ciudad" | "provincia" | "telefonoTipo" | "direccionTelefono";
@@ -87,70 +87,7 @@ export function DireccionSelector({ direcciones, values, errors }: DireccionSele
 
       {elegida === "nueva" ? (
         <div className="grid gap-4 rounded-xl border border-line p-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <Field
-              autoComplete="street-address"
-              defaultValue={values?.calle}
-              error={errors.calle}
-              id="direccion-calle"
-              label="Calle y número"
-              name="calle"
-              required
-            />
-          </div>
-          <Field defaultValue={values?.barrio} error={errors.barrio} id="direccion-barrio" label="Barrio" name="barrio" required />
-          <Field
-            autoComplete="address-level2"
-            defaultValue={values?.ciudad}
-            error={errors.ciudad}
-            id="direccion-ciudad"
-            label="Ciudad"
-            name="ciudad"
-            required
-          />
-          <SelectField
-            defaultValue={values?.provincia ?? ""}
-            error={errors.provincia}
-            id="direccion-provincia"
-            label="Provincia"
-            name="provincia"
-            required
-          >
-            <option disabled value="">
-              Elegí la provincia
-            </option>
-            {PROVINCIAS.map((provincia) => (
-              <option key={provincia} value={provincia}>
-                {provincia}
-              </option>
-            ))}
-          </SelectField>
-          <div className="grid grid-cols-[7rem_1fr] gap-2">
-            <SelectField
-              defaultValue={values?.telefonoTipo || "CELULAR"}
-              error={errors.telefonoTipo}
-              id="direccion-telefono-tipo"
-              label="Teléfono"
-              name="telefonoTipo"
-            >
-              {Object.entries(TELEFONO_TIPOS).map(([valor, label]) => (
-                <option key={valor} value={valor}>
-                  {label}
-                </option>
-              ))}
-            </SelectField>
-            <Field
-              autoComplete="tel"
-              defaultValue={values?.direccionTelefono}
-              error={errors.direccionTelefono}
-              id="direccion-telefono"
-              inputMode="tel"
-              label="Número"
-              name="direccionTelefono"
-              required
-              type="tel"
-            />
-          </div>
+          <DireccionCampos errors={errors} values={values} />
           <p className="text-xs text-muted sm:col-span-2">La guardamos en tu cuenta para tus próximas compras.</p>
         </div>
       ) : null}
