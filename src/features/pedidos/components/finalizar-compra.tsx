@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Field, TextareaField } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { calcularTotal, quitarDelCarrito, useCarrito, vaciarCarrito, type ItemCarrito } from "@/features/carrito/store";
+import { DireccionSelector } from "@/features/direcciones/components/direccion-selector";
+import type { DireccionGuardada } from "@/features/direcciones/queries";
 import { crearPedidoAction, type PedidoState } from "@/features/pedidos/actions";
 import { numeroPedido } from "@/features/pedidos/estados";
 import { cn } from "@/lib/cn";
@@ -17,7 +19,14 @@ const initialState: PedidoState = {};
 
 // Finalizar compra: datos de contacto y entrega + resumen del carrito. El
 // servidor recalcula precios y guarda el pedido; acá se vacía el carrito.
-export function FinalizarCompra({ nombreUsuario }: { nombreUsuario: string }) {
+export function FinalizarCompra({
+  nombreUsuario,
+  direcciones,
+}: {
+  nombreUsuario: string;
+  // Direcciones guardadas del usuario (para envío a domicilio).
+  direcciones: DireccionGuardada[];
+}) {
   const items = useCarrito();
   const [state, formAction, isPending] = useActionState(crearPedidoAction, initialState);
 
@@ -58,7 +67,12 @@ export function FinalizarCompra({ nombreUsuario }: { nombreUsuario: string }) {
         <input name="items" type="hidden" value={JSON.stringify(items.map(({ id, cantidad }) => ({ id, cantidad })))} />
 
         {/* Se remonta con los valores devueltos tras un error (React vacía el form). */}
-        <DatosEntrega key={JSON.stringify(state.values ?? {})} nombreUsuario={nombreUsuario} state={state} />
+        <DatosEntrega
+          direcciones={direcciones}
+          key={JSON.stringify(state.values ?? {})}
+          nombreUsuario={nombreUsuario}
+          state={state}
+        />
 
         <Resumen error={state.error} isPending={isPending} items={items} />
       </form>
@@ -66,7 +80,15 @@ export function FinalizarCompra({ nombreUsuario }: { nombreUsuario: string }) {
   );
 }
 
-function DatosEntrega({ state, nombreUsuario }: { state: PedidoState; nombreUsuario: string }) {
+function DatosEntrega({
+  state,
+  nombreUsuario,
+  direcciones,
+}: {
+  state: PedidoState;
+  nombreUsuario: string;
+  direcciones: DireccionGuardada[];
+}) {
   const values = state.values;
   const errors = state.fieldErrors ?? {};
   const [entrega, setEntrega] = useState(values?.entrega === "ENVIO" ? "ENVIO" : "RETIRO");
@@ -82,18 +104,6 @@ function DatosEntrega({ state, nombreUsuario }: { state: PedidoState; nombreUsua
         label="Nombre y apellido"
         name="nombre"
         required
-      />
-      <Field
-        autoComplete="tel"
-        defaultValue={values?.telefono}
-        error={errors.telefono}
-        hint="Preferentemente con WhatsApp."
-        id="pedido-telefono"
-        inputMode="tel"
-        label="Teléfono"
-        name="telefono"
-        required
-        type="tel"
       />
 
       <fieldset className="grid gap-2">
@@ -129,27 +139,21 @@ function DatosEntrega({ state, nombreUsuario }: { state: PedidoState; nombreUsua
       </fieldset>
 
       {entrega === "ENVIO" ? (
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field
-            autoComplete="street-address"
-            defaultValue={values?.direccion}
-            error={errors.direccion}
-            id="pedido-direccion"
-            label="Dirección"
-            name="direccion"
-            required
-          />
-          <Field
-            autoComplete="address-level2"
-            defaultValue={values?.localidad}
-            error={errors.localidad}
-            id="pedido-localidad"
-            label="Localidad"
-            name="localidad"
-            required
-          />
-        </div>
-      ) : null}
+        <DireccionSelector direcciones={direcciones} errors={errors} values={values} />
+      ) : (
+        <Field
+          autoComplete="tel"
+          defaultValue={values?.telefono}
+          error={errors.telefono}
+          hint="Preferentemente con WhatsApp. Te avisamos cuando esté listo para retirar."
+          id="pedido-telefono"
+          inputMode="tel"
+          label="Teléfono"
+          name="telefono"
+          required
+          type="tel"
+        />
+      )}
 
       <TextareaField
         defaultValue={values?.notas}

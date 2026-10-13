@@ -17,18 +17,19 @@ model Rol {
 
 // Usuarios del sitio. Ingresan con nombre de usuario o DNI.
 model Usuario {
-  id           String   @id @default(cuid()) @db.VarChar(30)
-  nombre       String   @db.VarChar(120)
-  username     String   @unique @db.VarChar(40)
-  dni          String?  @unique @db.VarChar(12)
-  passwordHash String   @db.VarChar(255)
-  activo       Boolean  @default(true)
+  id           String      @id @default(cuid()) @db.VarChar(30)
+  nombre       String      @db.VarChar(120)
+  username     String      @unique @db.VarChar(40)
+  dni          String?     @unique @db.VarChar(12)
+  passwordHash String      @db.VarChar(255)
+  activo       Boolean     @default(true)
   rolId        Int
-  rol          Rol      @relation(fields: [rolId], references: [id], onDelete: Restrict)
+  rol          Rol         @relation(fields: [rolId], references: [id], onDelete: Restrict)
   sesiones     Sesion[]
   pedidos      Pedido[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  direcciones  Direccion[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@index([rolId])
 }
@@ -127,21 +128,27 @@ enum TipoEntrega {
 // Pedido hecho desde el carrito por un usuario con sesión. Los precios se
 // calculan en el servidor al confirmar y quedan fijos en los ítems.
 model Pedido {
-  id         Int          @id @default(autoincrement())
-  usuarioId  String       @db.VarChar(30)
-  usuario    Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
-  estado     EstadoPedido @default(PENDIENTE)
-  // Datos de contacto y entrega cargados al finalizar la compra.
-  nombre     String       @db.VarChar(120)
-  telefono   String       @db.VarChar(30)
-  entrega    TipoEntrega
-  direccion  String?      @db.VarChar(200)
-  localidad  String?      @db.VarChar(100)
-  notas      String?      @db.VarChar(500)
-  total      Decimal      @db.Decimal(12, 2)
-  items      PedidoItem[]
-  creado     DateTime     @default(now())
-  modificado DateTime     @updatedAt
+  id           Int           @id @default(autoincrement())
+  usuarioId    String        @db.VarChar(30)
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  estado       EstadoPedido  @default(PENDIENTE)
+  // Datos de contacto y entrega cargados al finalizar la compra. Con envío se
+  // copian de la dirección elegida (si después la editan, el pedido no cambia).
+  nombre       String        @db.VarChar(120)
+  telefonoTipo TelefonoTipo?
+  telefono     String        @db.VarChar(30)
+  entrega      TipoEntrega
+  direccionId  Int?
+  direccionRef Direccion?    @relation(fields: [direccionId], references: [id], onDelete: SetNull)
+  direccion    String?       @db.VarChar(200) // calle y número
+  barrio       String?       @db.VarChar(100)
+  ciudad       String?       @db.VarChar(100)
+  provincia    String?       @db.VarChar(60)
+  notas        String?       @db.VarChar(500)
+  total        Decimal       @db.Decimal(12, 2)
+  items        PedidoItem[]
+  creado       DateTime      @default(now())
+  modificado   DateTime      @updatedAt
 
   @@index([usuarioId, creado])
   @@index([estado, creado])
@@ -164,4 +171,29 @@ model PedidoItem {
 
   @@index([pedidoId])
   @@index([productoId])
+}
+
+enum TelefonoTipo {
+  CELULAR
+  FIJO
+}
+
+// Direcciones de entrega guardadas por cada usuario (se cargan al finalizar
+// una compra con envío y se ofrecen en las siguientes).
+model Direccion {
+  id           Int          @id @default(autoincrement())
+  usuarioId    String       @db.VarChar(30)
+  usuario      Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  calle        String       @db.VarChar(200) // calle y número
+  barrio       String       @db.VarChar(100)
+  ciudad       String       @db.VarChar(100)
+  provincia    String       @db.VarChar(60)
+  telefonoTipo TelefonoTipo
+  telefono     String       @db.VarChar(30)
+  pedidos      Pedido[]
+  creado       DateTime     @default(now())
+  // Se actualiza al usarla: la usada más recientemente se ofrece primero.
+  modificado   DateTime     @updatedAt
+
+  @@index([usuarioId, modificado])
 }

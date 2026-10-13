@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
+import { TELEFONO_TIPOS } from "@/features/direcciones/schemas";
 import { cambiarEstadoPedidoAction } from "@/features/pedidos/actions";
 import { EstadoBadge } from "@/features/pedidos/components/estado-badge";
 import { ENTREGAS, ESTADOS_PEDIDO, numeroPedido } from "@/features/pedidos/estados";
@@ -106,13 +107,16 @@ async function Detalle({ params, searchParams }: Props) {
             <a className="inline-flex items-center gap-2 font-medium text-accent hover:underline" href={`tel:${pedido.telefono}`}>
               <Phone className="size-4" />
               {pedido.telefono}
+              {pedido.telefonoTipo ? <span className="text-xs font-normal text-muted">({TELEFONO_TIPOS[pedido.telefonoTipo]})</span> : null}
             </a>
             <div>
               <p className="font-medium">{ENTREGAS[pedido.entrega]}</p>
               {pedido.entrega === "ENVIO" ? (
                 <p className="text-muted">
                   {pedido.direccion}
-                  {pedido.localidad ? `, ${pedido.localidad}` : ""}
+                  <span className="block">
+                    {[pedido.barrio, pedido.ciudad, pedido.provincia].filter(Boolean).join(", ")}
+                  </span>
                 </p>
               ) : null}
             </div>

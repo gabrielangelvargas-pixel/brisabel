@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { getDireccionesDeUsuario } from "@/features/direcciones/queries";
 import { FinalizarCompra } from "@/features/pedidos/components/finalizar-compra";
 import { getCurrentUser } from "@/lib/auth/session";
 
@@ -28,5 +29,7 @@ async function Contenido() {
     redirect("/ingresar?volver=/finalizar-compra");
   }
 
-  return <FinalizarCompra nombreUsuario={usuario.nombre} />;
+  const direcciones = await getDireccionesDeUsuario(usuario.id);
+
+  return <FinalizarCompra direcciones={direcciones} nombreUsuario={usuario.nombre} />;
 }

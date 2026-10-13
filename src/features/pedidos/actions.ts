@@ -3,7 +3,9 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { direccionSchema } from "@/features/direcciones/schemas";
 import {
+  direccionNueva,
   leerPedidoForm,
   pedidoSchema,
   type PedidoCampo,
@@ -81,22 +83,56 @@ export async function crearPedidoAction(_prev: PedidoState, formData: FormData):
   });
   const total = items.reduce((suma, item) => suma.add(item.precio.mul(item.cantidad)), new Prisma.Decimal(0));
 
+  // Dirección guardada: tiene que ser del usuario.
+  const guardada =
+    datos.entrega === "ENVIO" && datos.direccionId !== "nueva"
+      ? await db.direccion.findFirst({ where: { id: Number(datos.direccionId), usuarioId: usuario.id }, select: { id: true } })
+      : null;
+
+  if (datos.entrega === "ENVIO" && datos.direccionId !== "nueva" && !guardada) {
+    return { values, fieldErrors: { direccionId: "Elegí una dirección de entrega." } };
+  }
+
   let pedido;
 
   try {
-    pedido = await db.pedido.create({
-      data: {
-        usuarioId: usuario.id,
-        nombre: datos.nombre,
-        telefono: datos.telefono,
-        entrega: datos.entrega,
-        direccion: datos.entrega === "ENVIO" ? datos.direccion : null,
-        localidad: datos.entrega === "ENVIO" ? datos.localidad : null,
-        notas: datos.notas,
-        total,
-        items: { create: items },
-      },
-      select: { id: true, total: true },
+    pedido = await db.$transaction(async (tx) => {
+      let contacto: Pick<
+        Prisma.PedidoUncheckedCreateInput,
+        "telefono" | "telefonoTipo" | "direccionId" | "direccion" | "barrio" | "ciudad" | "provincia"
+      > = { telefono: datos.telefono.trim() };
+
+      if (datos.entrega === "ENVIO") {
+        // Nueva: se guarda para la próxima. Guardada: se marca como la última usada.
+        const direccion = guardada
+          ? await tx.direccion.update({ where: { id: guardada.id }, data: { modificado: new Date() } })
+          : await tx.direccion.create({
+              data: { usuarioId: usuario.id, ...direccionSchema.parse(direccionNueva(datos)) },
+            });
+
+        contacto = {
+          telefono: direccion.telefono,
+          telefonoTipo: direccion.telefonoTipo,
+          direccionId: direccion.id,
+          direccion: direccion.calle,
+          barrio: direccion.barrio,
+          ciudad: direccion.ciudad,
+          provincia: direccion.provincia,
+        };
+      }
+
+      return tx.pedido.create({
+        data: {
+          usuarioId: usuario.id,
+          nombre: datos.nombre,
+          entrega: datos.entrega,
+          ...contacto,
+          notas: datos.notas,
+          total,
+          items: { create: items },
+        },
+        select: { id: true, total: true },
+      });
     });
   } catch (error) {
     console.error("Pedido: no se pudo guardar", error);
