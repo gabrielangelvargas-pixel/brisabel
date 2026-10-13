@@ -59,7 +59,6 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
           </p>
           {conVariantes ? (
             <BotonSiguiente
-              destacado={destacado}
               onClick={avanzar}
               siguiente={variantes[(indice + 1) % variantes.length]}
               variacion={variacion}

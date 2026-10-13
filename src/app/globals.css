@@ -25,6 +25,10 @@
   --color-gold-strong: #8a6a12;
   --color-gold-soft: #fbf5e4;
 
+  /* Naranja: acciones que tienen que resaltar (cambiar de variante). */
+  --color-orange: #f2892b;
+  --color-orange-strong: #db7417;
+
   --animate-fade-up: fade-up 0.7s ease-out both;
 
   @keyframes fade-up {

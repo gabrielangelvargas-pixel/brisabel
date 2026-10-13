@@ -23,8 +23,8 @@ export function ProductoGrid({ productos }: { productos: ProductoPublico[] }) {
         </li>
         {hayVariantes ? (
           <li className="inline-flex items-center gap-1.5">
-            <Icono>
-              <ChevronRight className="size-3" />
+            <Icono naranja>
+            <ChevronRight className="size-3" />
             </Icono>
             Tocá la flecha para ver otros colores o medidas
           </li>
@@ -58,11 +58,15 @@ export function ProductoGrid({ productos }: { productos: ProductoPublico[] }) {
   );
 }
 
-function Icono({ children }: { children: ReactNode }) {
+function Icono({ children, naranja = false }: { children: ReactNode; naranja?: boolean }) {
   return (
     <span
       aria-hidden
-      className="inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-brand"
+      className={
+        naranja
+          ? "inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-orange text-white"
+          : "inline-flex size-5 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-brand"
+      }
     >
       {children}
     </span>

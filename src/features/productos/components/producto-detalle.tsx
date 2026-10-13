@@ -19,23 +19,16 @@ export function productoUrl(slug: string) {
 export function BotonSiguiente({
   variacion,
   siguiente,
-  destacado,
   onClick,
 }: {
   variacion: string;
   siguiente: ProductoPublico;
-  destacado: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       aria-label={`Ver siguiente ${variacion.toLowerCase()}: ${siguiente.variante}`}
-      className={cn(
-        "inline-flex size-8 shrink-0 items-center justify-center rounded-full border transition",
-        destacado
-          ? "border-gold/40 text-gold-strong hover:bg-gold/15"
-          : "border-line text-brand hover:border-brand/40 hover:bg-brand-soft",
-      )}
+      className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-orange text-white shadow-sm shadow-orange/30 transition hover:bg-orange-strong"
       onClick={onClick}
       title={`Siguiente: ${siguiente.variante}`}
       type="button"
@@ -96,7 +89,6 @@ export function ProductoDetalle({ nombre, categoria, variacion, variantes, indic
                 {indice + 1}/{variantes.length}
               </span>
               <BotonSiguiente
-                destacado={destacado}
                 onClick={onAvanzar}
                 siguiente={variantes[(indice + 1) % variantes.length]}
                 variacion={variacion}
