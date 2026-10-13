@@ -8,6 +8,8 @@ import { cn } from "@/lib/cn";
 type ShareButtonProps = {
   title: string;
   text?: string;
+  // Ruta a compartir (ej. "/producto/aro-plata"). Sin ella, la página actual.
+  url?: string;
   // "pill": ícono + texto. "icon": solo el ícono en un círculo.
   variant?: "pill" | "icon";
   className?: string;
@@ -19,12 +21,12 @@ const variants = {
 };
 
 // Abre el menú nativo de compartir del dispositivo (Web Share API) con la
-// página actual. Donde no existe (muchas computadoras), copia el enlace.
-export function ShareButton({ title, text, variant = "pill", className }: ShareButtonProps) {
+// página actual (o la ruta indicada). Donde no existe (muchas computadoras), copia el enlace.
+export function ShareButton({ title, text, url: ruta, variant = "pill", className }: ShareButtonProps) {
   const [copiado, setCopiado] = useState(false);
 
   async function compartir() {
-    const url = window.location.href;
+    const url = ruta ? new URL(ruta, window.location.origin).href : window.location.href;
 
     if (navigator.share) {
       try {

@@ -1,10 +1,9 @@
 "use client";
 
-import { ChevronRight, X } from "lucide-react";
 import { useRef, useState } from "react";
 
-import { AgregarAlCarrito } from "@/features/carrito/components/agregar-al-carrito";
-import { BadgeDestacado, ProductoCard, ProductoImagen } from "@/features/productos/components/producto-card";
+import { ProductoCard } from "@/features/productos/components/producto-card";
+import { BotonSiguiente, ProductoDetalle } from "@/features/productos/components/producto-detalle";
 import { productoImagenUrl } from "@/features/productos/imagen-size";
 import type { ProductoPublico } from "@/features/productos/public-queries";
 import { cn } from "@/lib/cn";
@@ -30,30 +29,16 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
   const conVariantes = variacion !== null && variantes.length > 1;
   const elegida = variantes[indice];
   const destacado = elegida.destacado;
-  const siguiente = variantes[(indice + 1) % variantes.length];
   const avanzar = () => setIndice((i) => (i + 1) % variantes.length);
-  const imagenUrl = productoImagenUrl(elegida.imagen);
-
-  const botonSiguiente = conVariantes ? (
-    <button
-      aria-label={`Ver siguiente ${variacion.toLowerCase()}: ${siguiente.variante}`}
-      className={cn(
-        "inline-flex size-8 shrink-0 items-center justify-center rounded-full border transition",
-        destacado
-          ? "border-gold/40 text-gold-strong hover:bg-gold/15"
-          : "border-line text-brand hover:border-brand/40 hover:bg-brand-soft",
-      )}
-      onClick={avanzar}
-      title={`Siguiente: ${siguiente.variante}`}
-      type="button"
-    >
-      <ChevronRight className="size-4" />
-    </button>
-  ) : null;
 
   return (
     <>
-      <ProductoCard destacado={destacado} imagenUrl={imagenUrl} nombre={nombre} onAbrir={() => dialogRef.current?.showModal()}>
+      <ProductoCard
+        destacado={destacado}
+        imagenUrl={productoImagenUrl(elegida.imagen)}
+        nombre={nombre}
+        onAbrir={() => dialogRef.current?.showModal()}
+      >
         {/* Línea de variante de alto fijo (vacía si no hay) para alinear precios. */}
         {/* El contador (1/4) avisa que hay más opciones para ver con la flecha. */}
         <p className="flex h-4 items-center justify-between gap-2 text-xs leading-4 text-muted">
@@ -72,7 +57,14 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
           <p className={cn("text-lg font-bold tabular-nums sm:text-xl", destacado ? "text-gold-strong" : "text-brand")}>
             {formatPrecio(elegida.precioVenta)}
           </p>
-          {botonSiguiente}
+          {conVariantes ? (
+            <BotonSiguiente
+              destacado={destacado}
+              onClick={avanzar}
+              siguiente={variantes[(indice + 1) % variantes.length]}
+              variacion={variacion}
+            />
+          ) : null}
         </div>
       </ProductoCard>
 
@@ -85,66 +77,15 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
         }}
         ref={dialogRef}
       >
-        {/* Celular: vertical (imagen arriba). Tablet y escritorio: horizontal. */}
-        <div className="relative grid md:grid-cols-2">
-          <div className="relative aspect-square bg-white">
-            <ProductoImagen imagenUrl={imagenUrl} nombre={nombre} sizes="(min-width: 768px) 28rem, 92vw" />
-            {destacado ? <BadgeDestacado className="absolute top-3 left-3" /> : null}
-          </div>
-
-          <div className="flex flex-col gap-3 p-5 sm:gap-4 sm:p-8">
-            <div className="pr-10">
-              <p className="text-xs font-semibold tracking-[0.16em] text-accent uppercase">{categoria}</p>
-              <h2 className="mt-2 font-display text-2xl leading-tight font-semibold text-brand sm:text-3xl">{nombre}</h2>
-            </div>
-
-            {conVariantes ? (
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm">
-                  {variacion}: <span className="font-semibold">{elegida.variante}</span>
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted tabular-nums">
-                    {indice + 1}/{variantes.length}
-                  </span>
-                  {botonSiguiente}
-                </div>
-              </div>
-            ) : null}
-
-            {/* Código a la izquierda y precio a la derecha, en una sola línea. */}
-            <div className="mt-auto border-t border-line pt-3">
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="text-xs text-muted">Código: {elegida.sku}</p>
-                <p className={cn("text-3xl font-bold tabular-nums", destacado ? "text-gold-strong" : "text-brand")}>
-                  {formatPrecio(elegida.precioVenta)}
-                </p>
-              </div>
-              <div className="mt-3">
-                <AgregarAlCarrito
-                  destacado={destacado}
-                  item={{
-                    id: elegida.id,
-                    sku: elegida.sku,
-                    nombre,
-                    variante: conVariantes ? `${variacion}: ${elegida.variante}` : null,
-                    precio: elegida.precioVenta,
-                    imagen: elegida.imagen,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <button
-            aria-label="Cerrar"
-            className="absolute top-3 right-3 inline-flex size-10 items-center justify-center rounded-full bg-neutral-800/90 text-white shadow-md transition hover:bg-neutral-900"
-            onClick={() => dialogRef.current?.close()}
-            type="button"
-          >
-            <X className="size-5" />
-          </button>
-        </div>
+        <ProductoDetalle
+          categoria={categoria}
+          indice={indice}
+          nombre={nombre}
+          onAvanzar={avanzar}
+          onCerrar={() => dialogRef.current?.close()}
+          variacion={variacion}
+          variantes={variantes}
+        />
       </dialog>
     </>
   );
