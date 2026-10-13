@@ -11,6 +11,12 @@ export const siteConfig = {
     width: 800,
     height: 598,
   },
+  // Colores de la app instalada (barra del sistema y pantalla de inicio).
+  // Hex porque los usan el manifiesto y el navegador, no Tailwind.
+  pwa: {
+    theme: "#ffffff",
+    background: "#fbfaf7",
+  },
   ogImage: {
     url: "/og.png",
     width: 1200,

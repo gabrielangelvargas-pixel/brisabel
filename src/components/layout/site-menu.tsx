@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Suspense, useRef } from "react";
 
 import { SiteLogo } from "@/components/layout/site-logo";
+import { InstalarApp } from "@/components/pwa/instalar-app";
 import { mainNavigation } from "@/config/navigation";
 import { cn } from "@/lib/cn";
 
@@ -57,6 +58,8 @@ export function SiteMenu() {
               <ActiveMenuLinks onNavigate={close} />
             </Suspense>
           </nav>
+
+          <InstalarApp />
         </div>
       </dialog>
     </>

@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 
+import { RegistrarServiceWorker } from "@/components/pwa/registrar-sw";
 import { siteConfig } from "@/config/site";
 
 import "./globals.css";
@@ -34,6 +35,16 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [siteConfig.ogImage],
   },
+  // App instalada en iPhone/iPad (el manifiesto lo leen Android y escritorio).
+  appleWebApp: {
+    capable: true,
+    title: siteConfig.name,
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: siteConfig.pwa.theme,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -42,7 +53,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es-AR"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col font-sans">
+        {children}
+        <RegistrarServiceWorker />
+      </body>
     </html>
   );
 }
