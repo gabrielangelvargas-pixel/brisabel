@@ -3,6 +3,7 @@
 import { ChevronRight, X } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { AgregarAlCarrito } from "@/features/carrito/components/agregar-al-carrito";
 import { BadgeDestacado, ProductoCard, ProductoImagen } from "@/features/productos/components/producto-card";
 import { productoImagenUrl } from "@/features/productos/imagen-size";
 import type { ProductoPublico } from "@/features/productos/public-queries";
@@ -133,6 +134,19 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
                 {formatPrecio(elegida.precioVenta)}
               </p>
               <p className="mt-1 text-xs text-muted">Código: {elegida.sku}</p>
+              <div className="mt-5">
+                <AgregarAlCarrito
+                  destacado={destacado}
+                  item={{
+                    id: elegida.id,
+                    sku: elegida.sku,
+                    nombre,
+                    variante: conVariantes ? `${variacion}: ${elegida.variante}` : null,
+                    precio: elegida.precioVenta,
+                    imagen: elegida.imagen,
+                  }}
+                />
+              </div>
             </div>
           </div>
 

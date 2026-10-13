@@ -1,7 +1,8 @@
-import { LayoutDashboard, LogIn, ShoppingBag, UserRound } from "lucide-react";
+import { LayoutDashboard, LogIn, UserRound } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { CarritoIcono } from "@/features/carrito/components/carrito-icono";
 import { ROLES } from "@/lib/auth/roles";
 import { getCurrentUser } from "@/lib/auth/session";
 
@@ -11,9 +12,7 @@ const iconLinkClass =
 export function HeaderActions() {
   return (
     <div className="ml-auto flex items-center gap-1">
-      <Link aria-label="Carrito" className={iconLinkClass} href="/carrito">
-        <ShoppingBag className="size-6" />
-      </Link>
+      <CarritoIcono className={iconLinkClass} />
 
       {/* La sesión se lee por request: el resto del navbar queda estático. */}
       <Suspense fallback={<span aria-hidden className="size-10" />}>
