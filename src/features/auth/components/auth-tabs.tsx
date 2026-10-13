@@ -15,7 +15,7 @@ type TabId = (typeof tabs)[number]["id"];
 
 // Fichas Ingresar / Crear cuenta, con el patrón ARIA de tabs
 // (flechas izquierda/derecha para cambiar de ficha).
-export function AuthTabs() {
+export function AuthTabs({ volver }: { volver?: string }) {
   const [active, setActive] = useState<TabId>("ingresar");
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -69,7 +69,7 @@ export function AuthTabs() {
           key={tab.id}
           role="tabpanel"
         >
-          {tab.id === "ingresar" ? <LoginForm /> : <RegisterForm />}
+          {tab.id === "ingresar" ? <LoginForm volver={volver} /> : <RegisterForm volver={volver} />}
         </div>
       ))}
     </div>

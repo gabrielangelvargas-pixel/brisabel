@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Páginas privadas o sin valor para buscadores.
-      disallow: ["/admin", "/ingresar", "/perfil", "/carrito"],
+      disallow: ["/admin", "/ingresar", "/perfil", "/carrito", "/finalizar-compra"],
     },
     sitemap: `${siteConfig.url}/sitemap.xml`,
   };

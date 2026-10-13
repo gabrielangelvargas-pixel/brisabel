@@ -9,11 +9,13 @@ import { loginAction, type LoginState } from "@/features/auth/actions";
 
 const initialState: LoginState = {};
 
-export function LoginForm() {
+// volver: página a la que ir después (ej. "/finalizar-compra").
+export function LoginForm({ volver }: { volver?: string }) {
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
 
   return (
     <form action={formAction} className="grid gap-5">
+      {volver ? <input name="volver" type="hidden" value={volver} /> : null}
       <Field
         autoCapitalize="none"
         autoComplete="username"

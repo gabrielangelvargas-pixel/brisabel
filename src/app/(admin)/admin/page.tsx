@@ -1,10 +1,16 @@
-import { FolderTree, Package } from "lucide-react";
+import { ClipboardList, FolderTree, Package } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
 import { requireAdmin } from "@/lib/auth/session";
 
 const secciones = [
+  {
+    titulo: "Pedidos",
+    descripcion: "Revisá los pedidos de la tienda y actualizá su estado.",
+    href: "/admin/pedidos",
+    icon: ClipboardList,
+  },
   {
     titulo: "Categorías",
     descripcion: "Organizá el catálogo en categorías y subcategorías.",

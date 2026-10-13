@@ -26,6 +26,7 @@ model Usuario {
   rolId        Int
   rol          Rol      @relation(fields: [rolId], references: [id], onDelete: Restrict)
   sesiones     Sesion[]
+  pedidos      Pedido[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -72,26 +73,27 @@ model Categoria {
 // Productos del catálogo. Solo se asignan a categorías sin subcategorías
 // (regla aplicada por la app). precioCosto es interno: nunca se muestra en la tienda.
 model Producto {
-  id            Int       @id @default(autoincrement())
-  sku           String    @unique @db.VarChar(40)
-  nombre        String    @db.VarChar(150)
-  slug          String    @unique @db.VarChar(170)
-  precioCosto   Decimal   @db.Decimal(12, 2)
-  precioVenta   Decimal   @db.Decimal(12, 2)
+  id            Int          @id @default(autoincrement())
+  sku           String       @unique @db.VarChar(40)
+  nombre        String       @db.VarChar(150)
+  slug          String       @unique @db.VarChar(170)
+  precioCosto   Decimal      @db.Decimal(12, 2)
+  precioVenta   Decimal      @db.Decimal(12, 2)
   categoriaId   Int
-  categoria     Categoria @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
-  activo        Boolean   @default(true)
-  destacado     Boolean   @default(false)
+  categoria     Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Restrict)
+  activo        Boolean      @default(true)
+  destacado     Boolean      @default(false)
   // Archivo WebP cuadrado, en BRISABEL_UPLOADS_DIR/productos.
-  imagen        String?   @db.VarChar(120)
+  imagen        String?      @db.VarChar(120)
   // Agrupación opcional: productos del mismo modelo se muestran en una sola
   // tarjeta (ej. Modelo "Cartera chica", variante "Negro").
   modeloId      Int?
-  modelo        Modelo?   @relation(fields: [modeloId], references: [id], onDelete: SetNull)
-  variante      String?   @db.VarChar(60)
-  ordenVariante Int       @default(0)
-  creado        DateTime  @default(now())
-  modificado    DateTime  @updatedAt
+  modelo        Modelo?      @relation(fields: [modeloId], references: [id], onDelete: SetNull)
+  variante      String?      @db.VarChar(60)
+  ordenVariante Int          @default(0)
+  pedidoItems   PedidoItem[]
+  creado        DateTime     @default(now())
+  modificado    DateTime     @updatedAt
 
   @@index([categoriaId, activo])
   @@index([activo, destacado])
@@ -108,4 +110,58 @@ model Modelo {
   productos  Producto[]
   creado     DateTime   @default(now())
   modificado DateTime   @updatedAt
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  CONFIRMADO
+  ENTREGADO
+  CANCELADO
+}
+
+enum TipoEntrega {
+  RETIRO
+  ENVIO
+}
+
+// Pedido hecho desde el carrito por un usuario con sesión. Los precios se
+// calculan en el servidor al confirmar y quedan fijos en los ítems.
+model Pedido {
+  id         Int          @id @default(autoincrement())
+  usuarioId  String       @db.VarChar(30)
+  usuario    Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Restrict)
+  estado     EstadoPedido @default(PENDIENTE)
+  // Datos de contacto y entrega cargados al finalizar la compra.
+  nombre     String       @db.VarChar(120)
+  telefono   String       @db.VarChar(30)
+  entrega    TipoEntrega
+  direccion  String?      @db.VarChar(200)
+  localidad  String?      @db.VarChar(100)
+  notas      String?      @db.VarChar(500)
+  total      Decimal      @db.Decimal(12, 2)
+  items      PedidoItem[]
+  creado     DateTime     @default(now())
+  modificado DateTime     @updatedAt
+
+  @@index([usuarioId, creado])
+  @@index([estado, creado])
+}
+
+// Copia de cada producto al momento de pedirlo (si después cambia o se borra
+// el producto, el pedido conserva lo que se compró y a qué precio).
+model PedidoItem {
+  id         Int       @id @default(autoincrement())
+  pedidoId   Int
+  pedido     Pedido    @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productoId Int?
+  producto   Producto? @relation(fields: [productoId], references: [id], onDelete: SetNull)
+  sku        String    @db.VarChar(40)
+  nombre     String    @db.VarChar(150)
+  // "Color: Negro". null en productos sin variantes.
+  variante   String?   @db.VarChar(130)
+  precio     Decimal   @db.Decimal(12, 2)
+  cantidad   Int
+
+  @@index([pedidoId])
+  @@index([productoId])
 }

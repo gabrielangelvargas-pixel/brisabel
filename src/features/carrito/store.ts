@@ -107,3 +107,7 @@ export function cambiarCantidad(id: number, cantidad: number) {
 export function quitarDelCarrito(id: number) {
   guardar(getSnapshot().filter((i) => i.id !== id));
 }
+
+export function vaciarCarrito() {
+  guardar([]);
+}

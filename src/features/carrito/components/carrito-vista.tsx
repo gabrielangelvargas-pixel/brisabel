@@ -118,14 +118,13 @@ export function CarritoVista() {
             <p className="font-semibold">Total</p>
             <p className="text-2xl font-bold text-brand tabular-nums">{formatPrecio(calcularTotal(items))}</p>
           </div>
-          <button
-            className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-brand px-5 font-semibold text-white opacity-60"
-            disabled
-            type="button"
+          {/* Si no hay sesión, la página manda a ingresar y vuelve. */}
+          <Link
+            className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-brand px-5 font-semibold text-white transition hover:bg-brand-strong"
+            href="/finalizar-compra"
           >
             Finalizar compra
-          </button>
-          <p className="mt-2 text-center text-xs text-muted">Muy pronto vas a poder finalizar la compra.</p>
+          </Link>
           <Link
             className="mt-4 block text-center text-sm font-semibold text-accent underline-offset-4 hover:underline"
             href="/catalogo"

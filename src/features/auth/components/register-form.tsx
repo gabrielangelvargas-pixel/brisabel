@@ -9,7 +9,8 @@ import { registroAction, type RegistroState } from "@/features/auth/actions";
 
 const initialState: RegistroState = {};
 
-export function RegisterForm() {
+// volver: página a la que ir después (ej. "/finalizar-compra").
+export function RegisterForm({ volver }: { volver?: string }) {
   const [state, formAction, isPending] = useActionState(registroAction, initialState);
   const errors = state.fieldErrors ?? {};
   // Remonta los campos con los valores devueltos tras un error.
@@ -17,6 +18,7 @@ export function RegisterForm() {
 
   return (
     <form action={formAction} className="grid gap-5" key={formKey}>
+      {volver ? <input name="volver" type="hidden" value={volver} /> : null}
       <Field
         autoComplete="name"
         defaultValue={state.values?.nombre}

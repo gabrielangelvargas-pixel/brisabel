@@ -10,6 +10,7 @@ import { getDummyPasswordHash, hashPassword, verifyPassword } from "@/lib/auth/p
 import { clearAttempts, isRateLimited, registerAttempt } from "@/lib/auth/rate-limit";
 import { ROLES } from "@/lib/auth/roles";
 import { createSession, destroySession } from "@/lib/auth/session";
+import { volverSeguro } from "@/lib/auth/volver";
 import { getDb } from "@/lib/db";
 
 const connectionError = "No pudimos conectar con el servidor. Probá de nuevo en unos minutos.";
@@ -78,7 +79,7 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
 
   limitKeys.forEach(clearAttempts);
   await createSession(usuario.id);
-  redirect(homeFor(usuario.rol.codigo));
+  redirect(volverSeguro(formData.get("volver")) ?? homeFor(usuario.rol.codigo));
 }
 
 // ------------------------------------------------------------ Crear cuenta
@@ -157,7 +158,7 @@ export async function registroAction(
   }
 
   await createSession(usuarioId);
-  redirect("/");
+  redirect(volverSeguro(formData.get("volver")) ?? "/");
 }
 
 // ------------------------------------------------------------------- Salir
