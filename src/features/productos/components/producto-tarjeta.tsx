@@ -54,10 +54,16 @@ export function ProductoTarjeta({ nombre, categoria, variacion, variantes }: Pro
     <>
       <ProductoCard destacado={destacado} imagenUrl={imagenUrl} nombre={nombre} onAbrir={() => dialogRef.current?.showModal()}>
         {/* Línea de variante de alto fijo (vacía si no hay) para alinear precios. */}
-        <p className="h-4 truncate text-xs leading-4 text-muted">
+        {/* El contador (1/4) avisa que hay más opciones para ver con la flecha. */}
+        <p className="flex h-4 items-center justify-between gap-2 text-xs leading-4 text-muted">
           {conVariantes ? (
             <>
-              {variacion}: <span className="font-semibold text-ink">{elegida.variante}</span>
+              <span className="truncate">
+                {variacion}: <span className="font-semibold text-ink">{elegida.variante}</span>
+              </span>
+              <span className="shrink-0 tabular-nums">
+                {indice + 1}/{variantes.length}
+              </span>
             </>
           ) : null}
         </p>

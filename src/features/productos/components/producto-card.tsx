@@ -1,4 +1,4 @@
-import { Heart, Sparkles } from "lucide-react";
+import { Expand, Heart, Sparkles } from "lucide-react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 
@@ -75,6 +75,15 @@ export function ProductoCard({ nombre, imagenUrl, destacado, onAbrir, children }
           imagen
         )}
         {destacado ? <BadgeDestacado className="pointer-events-none absolute top-2 left-2" /> : null}
+        {/* Pista visual: la foto se puede tocar para ver el detalle. */}
+        {onAbrir ? (
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-2 bottom-2 inline-flex size-7 items-center justify-center rounded-full bg-surface/90 text-brand shadow-sm ring-1 ring-black/5"
+          >
+            <Expand className="size-3.5" />
+          </span>
+        ) : null}
       </div>
 
       <div className={cn("flex flex-1 flex-col border-t p-3 sm:p-4", destacado ? "border-gold/25 bg-gold-soft" : "border-line/60")}>
