@@ -12,7 +12,7 @@ import { IMAGEN_ALTO, IMAGEN_ANCHO, IMAGEN_PROPORCION } from "@/features/categor
 import { getCategoriaPublica } from "@/features/categorias/public-queries";
 import { categoriaImagenUrl } from "@/features/categorias/tree";
 import { ProductoGrid } from "@/features/productos/components/producto-grid";
-import { getProductosDeCategoria } from "@/features/productos/public-queries";
+import { getProductosDeCategorias } from "@/features/productos/public-queries";
 
 type Props = PageProps<"/catalogo/[slug]">;
 
@@ -93,7 +93,7 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
     notFound();
   }
 
-  const { categoria, migas, hijas } = resultado;
+  const { categoria, migas, hijas, subarbol } = resultado;
   const imagenUrl = categoriaImagenUrl(categoria.imagen);
 
   return (
@@ -152,25 +152,29 @@ async function CategoriaContenido({ params }: Pick<Props, "params">) {
 
       <section className="mx-auto w-full max-w-7xl px-5 py-6 sm:py-10">
         {hijas.length > 0 ? (
-          <>
+          <div className="mb-8 sm:mb-12">
             <h2 className="font-display text-xl font-semibold text-brand sm:text-2xl">Explorá {categoria.nombre}</h2>
             <div className="mt-5">
               <CategoriaGrid categorias={hijas} />
             </div>
-          </>
-        ) : (
-          <ProductosDeCategoria categoria={categoria.nombre} categoriaId={categoria.id} />
-        )}
+          </div>
+        ) : null}
+        {/* Todos los productos de la categoría y sus subcategorías, sin filtrar. */}
+        <ProductosDeCategoria categoriaIds={subarbol} titulo={hijas.length > 0 ? `Todo en ${categoria.nombre}` : null} />
       </section>
     </>
   );
 }
 
-// Las categorías sin subcategorías muestran sus productos.
-async function ProductosDeCategoria({ categoriaId, categoria }: { categoriaId: number; categoria: string }) {
-  const productos = await getProductosDeCategoria(categoriaId);
+// Productos de la categoría y de todo su subárbol. En una categoría padre van
+// debajo de las subcategorías, con título.
+async function ProductosDeCategoria({ categoriaIds, titulo }: { categoriaIds: number[]; titulo: string | null }) {
+  const productos = await getProductosDeCategorias(categoriaIds);
 
   if (productos.length === 0) {
+    // En una categoría padre ya se ven las subcategorías: sin aviso de vacío.
+    if (titulo) return null;
+
     return (
       <div className="rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
         <PackageOpen className="mx-auto size-10 text-leaf" />
@@ -180,7 +184,12 @@ async function ProductosDeCategoria({ categoriaId, categoria }: { categoriaId: n
     );
   }
 
-  return <ProductoGrid categoria={categoria} productos={productos} />;
+  return (
+    <>
+      {titulo ? <h2 className="mb-4 font-display text-xl font-semibold text-brand sm:text-2xl">{titulo}</h2> : null}
+      <ProductoGrid productos={productos} />
+    </>
+  );
 }
 
 function CategoriaFallback() {

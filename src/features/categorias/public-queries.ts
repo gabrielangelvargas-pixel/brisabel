@@ -64,7 +64,8 @@ export async function getCategoriasPrincipales() {
   }));
 }
 
-// Categoría por slug con sus migas de pan (ancestros) y sus hijas visibles.
+// Categoría por slug con sus migas de pan (ancestros), sus hijas visibles y los
+// ids de todo su subárbol visible (ella incluida) para listar sus productos.
 export async function getCategoriaPublica(slug: string) {
   const visibles = await getCategoriasVisibles();
   const categoria = visibles.find((c) => c.slug === slug);
@@ -80,5 +81,7 @@ export async function getCategoriaPublica(slug: string) {
     .filter((c): c is CategoriaPublica => Boolean(c));
   const hijas = buildTree(visibles.filter((c) => c.parentId === categoria.id));
 
-  return { categoria, migas, hijas };
+  const subarbol = visibles.filter((c) => c.ruta.startsWith(categoria.ruta)).map((c) => c.id);
+
+  return { categoria, migas, hijas, subarbol };
 }

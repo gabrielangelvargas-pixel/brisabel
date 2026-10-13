@@ -9,6 +9,7 @@ import { buildRuta, isInSubtree, MAX_NIVEL } from "@/features/categorias/tree";
 import { getArchivo, nombreArchivoCategoria, procesarImagenCategoria } from "@/features/categorias/imagen";
 import { CATEGORIAS_TAG } from "@/features/categorias/public-queries";
 import { getAlturaSubarbol } from "@/features/categorias/queries";
+import { PRODUCTOS_TAG } from "@/features/productos/public-queries";
 import { Prisma } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
@@ -160,6 +161,7 @@ export async function crearCategoriaAction(
   }
 
   updateTag(CATEGORIAS_TAG);
+  updateTag(PRODUCTOS_TAG); // la tienda muestra el nombre de la categoría de cada producto
   redirect(`${listaUrl}?ok=creada`);
 }
 
@@ -267,6 +269,7 @@ export async function editarCategoriaAction(
   }
 
   updateTag(CATEGORIAS_TAG);
+  updateTag(PRODUCTOS_TAG); // la tienda muestra el nombre de la categoría de cada producto
   redirect(`${listaUrl}?ok=actualizada`);
 }
 
@@ -328,6 +331,7 @@ export async function eliminarCategoriaAction(formData: FormData) {
   await getDb().categoria.delete({ where: { id } });
   await deleteFile("categorias", categoria.imagen);
   updateTag(CATEGORIAS_TAG);
+  updateTag(PRODUCTOS_TAG); // la tienda muestra el nombre de la categoría de cada producto
   redirect(`${listaUrl}?ok=eliminada`);
 }
 
@@ -363,5 +367,6 @@ export async function moverCategoriaAction(formData: FormData) {
   });
 
   updateTag(CATEGORIAS_TAG);
+  updateTag(PRODUCTOS_TAG); // la tienda muestra el nombre de la categoría de cada producto
   redirect(listaUrl);
 }

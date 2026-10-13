@@ -7,7 +7,7 @@ import type { ProductoPublico } from "@/features/productos/public-queries";
 
 // Grilla de productos de la tienda: los productos de un mismo modelo se
 // muestran en una sola tarjeta con sus variantes; tocar la foto abre el detalle.
-export function ProductoGrid({ productos, categoria }: { productos: ProductoPublico[]; categoria: string }) {
+export function ProductoGrid({ productos }: { productos: ProductoPublico[] }) {
   const tarjetas = agruparParaTienda(productos);
   const hayVariantes = tarjetas.some((tarjeta) => tarjeta.tipo === "modelo");
 
@@ -36,7 +36,7 @@ export function ProductoGrid({ productos, categoria }: { productos: ProductoPubl
           tarjeta.tipo === "modelo" ? (
             <li key={`m${tarjeta.id}`}>
               <ProductoTarjeta
-                categoria={categoria}
+                categoria={tarjeta.variantes[0].categoria}
                 nombre={tarjeta.nombre}
                 variacion={tarjeta.variacion}
                 variantes={tarjeta.variantes}
@@ -45,7 +45,7 @@ export function ProductoGrid({ productos, categoria }: { productos: ProductoPubl
           ) : (
             <li key={`p${tarjeta.producto.id}`}>
               <ProductoTarjeta
-                categoria={categoria}
+                categoria={tarjeta.producto.categoria}
                 nombre={tarjeta.producto.nombre}
                 variacion={null}
                 variantes={[tarjeta.producto]}
