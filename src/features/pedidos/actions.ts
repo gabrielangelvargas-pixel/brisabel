@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { z } from "zod";
 
 import { direccionSchema } from "@/features/direcciones/schemas";
@@ -12,8 +13,13 @@ import {
   type PedidoFormValues,
 } from "@/features/pedidos/schemas";
 import { Prisma } from "@/generated/prisma/client";
+import type { EstadoPedido } from "@/generated/prisma/enums";
+import { numeroPedido } from "@/features/pedidos/estados";
+import { ROLES } from "@/lib/auth/roles";
 import { requireAdmin, requireUser } from "@/lib/auth/session";
 import { getDb } from "@/lib/db";
+import { formatPrecio } from "@/lib/format";
+import { enviarPush } from "@/lib/push";
 
 // ------------------------------------------------------- Finalizar compra
 
@@ -129,10 +135,30 @@ export async function crearPedidoAction(_prev: PedidoState, formData: FormData):
     return { values, error: "No pudimos guardar tu pedido. Probá de nuevo en unos minutos." };
   }
 
+  // Aviso a los administradores, después de responder (no demora al cliente).
+  const { id, total: totalPedido } = pedido;
+  after(() =>
+    enviarPush(
+      { rol: { codigo: ROLES.ADMIN } },
+      {
+        titulo: `Nuevo pedido ${numeroPedido(id)}`,
+        cuerpo: `${datos.nombre} · ${formatPrecio(totalPedido.toString())}`,
+        url: `/admin/pedidos/${id}`,
+        etiqueta: `pedido-${id}`,
+      },
+    ),
+  );
+
   return { pedido: { id: pedido.id, total: pedido.total.toString() } };
 }
 
 // ------------------------------------------------------------ Panel: estado
+
+const AVISOS_ESTADO: Partial<Record<EstadoPedido, { titulo: (numero: string) => string; cuerpo: string }>> = {
+  CONFIRMADO: { titulo: (n) => `Tu pedido ${n} fue confirmado`, cuerpo: "Ya lo estamos preparando. ¡Gracias por elegir Brisabel!" },
+  ENTREGADO: { titulo: (n) => `¡Tu pedido ${n} fue entregado!`, cuerpo: "Esperamos que lo disfrutes. ¡Gracias por elegir Brisabel!" },
+  CANCELADO: { titulo: (n) => `Tu pedido ${n} fue cancelado`, cuerpo: "Si tenés alguna duda, escribinos." },
+};
 
 const estadoSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -150,6 +176,24 @@ export async function cambiarEstadoPedidoAction(formData: FormData) {
 
   const { id, estado } = parsed.data;
 
-  await getDb().pedido.update({ where: { id }, data: { estado } });
+  const anterior = await getDb().pedido.findUnique({ where: { id }, select: { estado: true } });
+
+  if (!anterior) {
+    redirect("/admin/pedidos");
+  }
+
+  const pedido = await getDb().pedido.update({ where: { id }, data: { estado }, select: { usuarioId: true } });
+  const aviso = AVISOS_ESTADO[estado];
+
+  // Aviso al cliente solo si el estado cambió (y no al volver a Pendiente).
+  if (aviso && anterior.estado !== estado) {
+    after(() =>
+      enviarPush(
+        { id: pedido.usuarioId },
+        { titulo: aviso.titulo(numeroPedido(id)), cuerpo: aviso.cuerpo, url: "/perfil", etiqueta: `pedido-${id}` },
+      ),
+    );
+  }
+
   redirect(`/admin/pedidos/${id}?ok=estado`);
 }

@@ -9,6 +9,10 @@ const serverEnvSchema = z.object({
   // Carpeta persistente para archivos subidos (fuera del deploy, que se
   // reemplaza en cada versión). Por defecto, una carpeta hermana del proyecto.
   BRISABEL_UPLOADS_DIR: z.string().min(1).optional(),
+  // Notificaciones push (VAPID). Opcionales: sin ellas no se ofrecen avisos.
+  VAPID_PUBLIC_KEY: z.string().min(1).optional(),
+  VAPID_PRIVATE_KEY: z.string().min(1).optional(),
+  VAPID_SUBJECT: z.string().regex(/^(https:|mailto:)/, "VAPID_SUBJECT debe empezar con https: o mailto:").optional(),
 });
 
 type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -21,6 +25,9 @@ export function getServerEnv(): ServerEnv {
   cached ??= serverEnvSchema.parse({
     DATABASE_URL: process.env.DATABASE_URL,
     BRISABEL_UPLOADS_DIR: process.env.BRISABEL_UPLOADS_DIR || undefined,
+    VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY || undefined,
+    VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY || undefined,
+    VAPID_SUBJECT: process.env.VAPID_SUBJECT || undefined,
   });
 
   return cached;

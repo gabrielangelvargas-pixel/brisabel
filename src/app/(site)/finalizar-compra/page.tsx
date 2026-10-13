@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { getDireccionesDeUsuario } from "@/features/direcciones/queries";
 import { FinalizarCompra } from "@/features/pedidos/components/finalizar-compra";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getPushPublicKey } from "@/lib/push";
 
 export const metadata: Metadata = {
   title: "Finalizar compra",
@@ -31,5 +32,5 @@ async function Contenido() {
 
   const direcciones = await getDireccionesDeUsuario(usuario.id);
 
-  return <FinalizarCompra direcciones={direcciones} nombreUsuario={usuario.nombre} />;
+  return <FinalizarCompra direcciones={direcciones} nombreUsuario={usuario.nombre} pushPublicKey={getPushPublicKey()} />;
 }

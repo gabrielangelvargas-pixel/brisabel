@@ -11,6 +11,7 @@ import { calcularTotal, quitarDelCarrito, useCarrito, vaciarCarrito, type ItemCa
 import { DireccionSelector } from "@/features/direcciones/components/direccion-selector";
 import type { DireccionGuardada } from "@/features/direcciones/queries";
 import { crearPedidoAction, type PedidoState } from "@/features/pedidos/actions";
+import { ActivarNotificaciones } from "@/features/notificaciones/components/activar-notificaciones";
 import { numeroPedido } from "@/features/pedidos/estados";
 import { cn } from "@/lib/cn";
 import { formatPrecio } from "@/lib/format";
@@ -22,10 +23,13 @@ const initialState: PedidoState = {};
 export function FinalizarCompra({
   nombreUsuario,
   direcciones,
+  pushPublicKey,
 }: {
   nombreUsuario: string;
   // Direcciones guardadas del usuario (para envío a domicilio).
   direcciones: DireccionGuardada[];
+  // Clave para avisos push (null si no están configurados).
+  pushPublicKey: string | null;
 }) {
   const items = useCarrito();
   const [state, formAction, isPending] = useActionState(crearPedidoAction, initialState);
@@ -36,7 +40,7 @@ export function FinalizarCompra({
   }, [state]);
 
   if (state.pedido) {
-    return <Confirmacion id={state.pedido.id} total={state.pedido.total} />;
+    return <Confirmacion id={state.pedido.id} pushPublicKey={pushPublicKey} total={state.pedido.total} />;
   }
 
   if (items.length === 0) {
@@ -206,7 +210,7 @@ function Resumen({ items, error, isPending }: { items: ItemCarrito[]; error?: st
   );
 }
 
-function Confirmacion({ id, total }: { id: number; total: string }) {
+function Confirmacion({ id, total, pushPublicKey }: { id: number; total: string; pushPublicKey: string | null }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-10 text-center">
       <span className="inline-flex size-16 items-center justify-center rounded-full bg-brand-soft text-brand">
@@ -218,6 +222,10 @@ function Confirmacion({ id, total }: { id: number; total: string }) {
         <span className="font-semibold text-ink">{formatPrecio(total)}</span>.
       </p>
       <p className="mt-1 max-w-md text-muted">Te vamos a contactar para coordinar el pago y la entrega.</p>
+      {/* Momento ideal para pedir permiso: el cliente quiere saber cómo sigue su pedido. */}
+      {pushPublicKey ? (
+        <ActivarNotificaciones className="mt-5" publicKey={pushPublicKey} textoActivar="Avisame cuando avance mi pedido" />
+      ) : null}
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link
           className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-strong"

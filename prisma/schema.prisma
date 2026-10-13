@@ -17,19 +17,20 @@ model Rol {
 
 // Usuarios del sitio. Ingresan con nombre de usuario o DNI.
 model Usuario {
-  id           String      @id @default(cuid()) @db.VarChar(30)
-  nombre       String      @db.VarChar(120)
-  username     String      @unique @db.VarChar(40)
-  dni          String?     @unique @db.VarChar(12)
-  passwordHash String      @db.VarChar(255)
-  activo       Boolean     @default(true)
-  rolId        Int
-  rol          Rol         @relation(fields: [rolId], references: [id], onDelete: Restrict)
-  sesiones     Sesion[]
-  pedidos      Pedido[]
-  direcciones  Direccion[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id            String            @id @default(cuid()) @db.VarChar(30)
+  nombre        String            @db.VarChar(120)
+  username      String            @unique @db.VarChar(40)
+  dni           String?           @unique @db.VarChar(12)
+  passwordHash  String            @db.VarChar(255)
+  activo        Boolean           @default(true)
+  rolId         Int
+  rol           Rol               @relation(fields: [rolId], references: [id], onDelete: Restrict)
+  sesiones      Sesion[]
+  pedidos       Pedido[]
+  direcciones   Direccion[]
+  suscripciones SuscripcionPush[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@index([rolId])
 }
@@ -195,4 +196,20 @@ model Direccion {
   modificado   DateTime     @updatedAt
 
   @@index([usuarioId, archivada, modificado])
+}
+
+// Suscripción a notificaciones push (Web Push) de un dispositivo/navegador.
+// Un usuario puede tener varias (celular, computadora...).
+model SuscripcionPush {
+  id         Int      @id @default(autoincrement())
+  usuarioId  String   @db.VarChar(30)
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  // Dirección única que entrega el navegador (servicio de push del fabricante).
+  endpoint   String   @unique @db.VarChar(512)
+  p256dh     String   @db.VarChar(200)
+  auth       String   @db.VarChar(100)
+  creado     DateTime @default(now())
+  modificado DateTime @updatedAt
+
+  @@index([usuarioId])
 }

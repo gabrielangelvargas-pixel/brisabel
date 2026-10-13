@@ -8,11 +8,13 @@ import { PerfilDatos } from "@/features/cuenta/components/perfil-datos";
 import { getPerfil } from "@/features/cuenta/queries";
 import { MisDirecciones } from "@/features/direcciones/components/mis-direcciones";
 import { getDireccionesDeUsuario } from "@/features/direcciones/queries";
+import { ActivarNotificaciones } from "@/features/notificaciones/components/activar-notificaciones";
 import { EstadoBadge } from "@/features/pedidos/components/estado-badge";
 import { numeroPedido } from "@/features/pedidos/estados";
 import { getPedidosDeUsuario } from "@/features/pedidos/queries";
 import { requireUser } from "@/lib/auth/session";
 import { formatFechaHora, formatPrecio } from "@/lib/format";
+import { getPushPublicKey } from "@/lib/push";
 
 export const metadata: Metadata = {
   title: "Mi cuenta",
@@ -32,6 +34,7 @@ export default function ProfilePage() {
 
 async function ProfileDetails() {
   const user = await requireUser();
+  const pushPublicKey = getPushPublicKey();
   const [perfil, direcciones, pedidos] = await Promise.all([
     getPerfil(user.id),
     getDireccionesDeUsuario(user.id),
@@ -73,6 +76,14 @@ async function ProfileDetails() {
           </ul>
         )}
       </section>
+
+      {pushPublicKey ? (
+        <section className="mt-8 rounded-lg border border-line bg-surface p-5">
+          <h2 className="text-xl font-semibold">Notificaciones</h2>
+          <p className="mt-1 text-sm text-muted">Te avisamos en este dispositivo cuando tu pedido avance.</p>
+          <ActivarNotificaciones className="mt-4" publicKey={pushPublicKey} />
+        </section>
+      ) : null}
 
       <form action={logoutAction} className="mt-6">
         <Button type="submit" variant="outline">

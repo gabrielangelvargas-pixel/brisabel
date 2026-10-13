@@ -2,7 +2,9 @@ import { ClipboardList, FolderTree, Package } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { ActivarNotificaciones } from "@/features/notificaciones/components/activar-notificaciones";
 import { requireAdmin } from "@/lib/auth/session";
+import { getPushPublicKey } from "@/lib/push";
 
 const secciones = [
   {
@@ -37,6 +39,7 @@ export default function AdminPage() {
 
 async function AdminHome() {
   const user = await requireAdmin();
+  const pushPublicKey = getPushPublicKey();
 
   return (
     <>
@@ -64,6 +67,14 @@ async function AdminHome() {
           </li>
         ))}
       </ul>
+
+      {pushPublicKey ? (
+        <section className="mt-8 rounded-lg border border-line bg-surface p-5">
+          <h2 className="font-semibold">Avisos de pedidos nuevos</h2>
+          <p className="mt-1 text-sm text-muted">Activalos en cada dispositivo donde quieras enterarte al instante.</p>
+          <ActivarNotificaciones className="mt-4" publicKey={pushPublicKey} />
+        </section>
+      ) : null}
     </>
   );
 }
