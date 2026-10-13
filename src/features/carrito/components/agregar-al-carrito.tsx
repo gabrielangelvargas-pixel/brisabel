@@ -1,39 +1,56 @@
 "use client";
 
-import { Check, ShoppingBag } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Minus, Plus } from "lucide-react";
 
-import { agregarAlCarrito, type ItemCarrito } from "@/features/carrito/store";
+import { agregarAlCarrito, cambiarCantidad, type ItemCarrito, useCarrito } from "@/features/carrito/store";
 import { cn } from "@/lib/cn";
 
-// Botón "Agregar al carrito". Al tocarlo confirma por un momento (el contador
-// del navbar también se actualiza); tocarlo de nuevo suma otra unidad.
+// Control del carrito en el detalle: [ – | cantidad | + ] en tres partes
+// iguales. La cantidad es la que ya hay de este producto en el carrito; con
+// "–" en 1 se quita del carrito.
 export function AgregarAlCarrito({ item, destacado }: { item: Omit<ItemCarrito, "cantidad">; destacado: boolean }) {
-  // Id del último agregado: si se cambia de variante, el aviso no se muestra.
-  const [agregadoId, setAgregadoId] = useState<number | null>(null);
-  const agregado = agregadoId === item.id;
+  const cantidad = useCarrito().find((i) => i.id === item.id)?.cantidad ?? 0;
 
-  useEffect(() => {
-    if (agregadoId === null) return;
-    const timer = setTimeout(() => setAgregadoId(null), 2500);
-    return () => clearTimeout(timer);
-  }, [agregadoId]);
+  const boton = cn(
+    "inline-flex items-center justify-center text-white transition disabled:opacity-50",
+    destacado ? "bg-gold-strong enabled:hover:brightness-110" : "bg-brand enabled:hover:bg-brand-strong",
+  );
 
   return (
-    <button
-      aria-live="polite"
+    <div
+      aria-label="Cantidad en el carrito"
       className={cn(
-        "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-5 font-semibold text-white shadow-sm transition",
-        destacado ? "bg-gold-strong hover:brightness-110" : "bg-brand hover:bg-brand-strong",
+        "grid h-12 grid-cols-3 overflow-hidden rounded-full border-2 shadow-sm",
+        destacado ? "border-gold-strong" : "border-brand",
       )}
-      onClick={() => {
-        agregarAlCarrito(item);
-        setAgregadoId(item.id);
-      }}
-      type="button"
+      role="group"
     >
-      {agregado ? <Check className="size-5" /> : <ShoppingBag className="size-5" />}
-      {agregado ? "¡Agregado al carrito!" : "Agregar al carrito"}
-    </button>
+      <button
+        aria-label="Quitar una unidad del carrito"
+        className={boton}
+        disabled={cantidad === 0}
+        onClick={() => cambiarCantidad(item.id, cantidad - 1)}
+        type="button"
+      >
+        <Minus className="size-5" />
+      </button>
+      <output
+        aria-live="polite"
+        className={cn(
+          "flex items-center justify-center bg-surface text-lg font-bold tabular-nums",
+          destacado ? "text-gold-strong" : "text-brand",
+        )}
+      >
+        {cantidad}
+      </output>
+      <button
+        aria-label="Agregar una unidad al carrito"
+        className={boton}
+        onClick={() => agregarAlCarrito(item)}
+        type="button"
+      >
+        <Plus className="size-5" />
+      </button>
+    </div>
   );
 }
