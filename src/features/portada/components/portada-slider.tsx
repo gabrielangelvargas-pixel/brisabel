@@ -11,7 +11,8 @@ export type SlidePortada = {
   key: string;
   ocasion: string;
   frase: string | null;
-  src: string | StaticImageData;
+  // null: sin foto (mientras cargan las del panel se ve solo el fondo).
+  src: string | StaticImageData | null;
   // Versión vertical para celulares (opcional).
   srcMovil?: string | null;
   enlace: string | null;
@@ -63,37 +64,40 @@ export function PortadaSlider({ slides }: { slides: SlidePortada[] }) {
           )}
           key={s.key}
         >
-          {s.srcMovil && typeof s.src === "string" ? (
-            // Con foto vertical: el navegador baja solo la que corresponde a la pantalla.
-            <picture>
-              <source media="(max-width: 639px)" srcSet={s.srcMovil} />
-              <img
+          {/* La primera foto aparece con un fundido (no "salta" sobre el fondo). */}
+          <div className={cn("absolute inset-0", i === 0 && "motion-safe:animate-fade-in")}>
+            {s.src === null ? null : s.srcMovil && typeof s.src === "string" ? (
+              // Con foto vertical: el navegador baja solo la que corresponde a la pantalla.
+              <picture>
+                <source media="(max-width: 639px)" srcSet={s.srcMovil} />
+                <img
+                  alt=""
+                  className={cn(
+                    "absolute inset-0 size-full object-cover",
+                    i === activo && "motion-safe:animate-ken-burns",
+                  )}
+                  decoding="async"
+                  fetchPriority={i === 0 ? "high" : "auto"}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  src={s.src}
+                  style={i === activo ? pausa : undefined}
+                />
+              </picture>
+            ) : (
+              <Image
                 alt=""
-                className={cn(
-                  "absolute inset-0 size-full object-cover",
-                  i === activo && "motion-safe:animate-ken-burns",
-                )}
-                decoding="async"
-                fetchPriority={i === 0 ? "high" : "auto"}
+                className={cn("object-cover", i === activo && "motion-safe:animate-ken-burns")}
+                fill
                 loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : "auto"}
+                placeholder={typeof s.src === "string" ? "empty" : "blur"}
+                sizes="100vw"
                 src={s.src}
                 style={i === activo ? pausa : undefined}
+                unoptimized={typeof s.src === "string"}
               />
-            </picture>
-          ) : (
-            <Image
-              alt=""
-              className={cn("object-cover", i === activo && "motion-safe:animate-ken-burns")}
-              fill
-              loading={i === 0 ? "eager" : "lazy"}
-              fetchPriority={i === 0 ? "high" : "auto"}
-              placeholder={typeof s.src === "string" ? "empty" : "blur"}
-              sizes="100vw"
-              src={s.src}
-              style={i === activo ? pausa : undefined}
-              unoptimized={typeof s.src === "string"}
-            />
-          )}
+            )}
+          </div>
         </div>
       ))}
 

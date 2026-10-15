@@ -5,8 +5,7 @@ import { PortadaSlider, type SlidePortada } from "@/features/portada/components/
 import { portadaImagenUrl } from "@/features/portada/imagen-size";
 import { getPortadas } from "@/features/portada/public-queries";
 
-// Sin fotos cargadas en el panel (o mientras cargan), la portada muestra la
-// foto de siempre.
+// Sin fotos cargadas en el panel, la portada muestra la foto de siempre.
 const slideInicial: SlidePortada = {
   key: "inicial",
   ocasion: "Regalos que inspiran",
@@ -15,8 +14,10 @@ const slideInicial: SlidePortada = {
   enlace: null,
 };
 
+// Mientras se leen las fotos del panel: la portada sin foto (fondo de la marca
+// con el título y los botones). Así no aparece un instante otra foto.
 export function HeroFallback() {
-  return <PortadaSlider slides={[slideInicial]} />;
+  return <PortadaSlider slides={[{ ...slideInicial, key: "cargando", src: null }]} />;
 }
 
 // Portada de la Home: slider con las fotos administradas en Panel → Portada.
@@ -30,7 +31,7 @@ export async function Hero() {
   });
 
   if (portadas.length === 0) {
-    return <HeroFallback />;
+    return <PortadaSlider slides={[slideInicial]} />;
   }
 
   return (
