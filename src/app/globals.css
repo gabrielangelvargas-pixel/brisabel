@@ -32,8 +32,15 @@
   --animate-fade-up: fade-up 0.7s ease-out both;
   /* Slider de la portada: zoom lento de la foto y barra de avance. */
   --animate-fade-in: fade-in 0.8s ease-out both;
+  --animate-marquee: marquee 28s linear infinite;
   --animate-ken-burns: ken-burns 7s ease-out both;
   --animate-progreso: progreso 6s linear both;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 
   @keyframes fade-in {
     from {
