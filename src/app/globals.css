@@ -30,6 +30,27 @@
   --color-orange-strong: #db7417;
 
   --animate-fade-up: fade-up 0.7s ease-out both;
+  /* Slider de la portada: zoom lento de la foto y barra de avance. */
+  --animate-ken-burns: ken-burns 7s ease-out both;
+  --animate-progreso: progreso 6s linear both;
+
+  @keyframes ken-burns {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes progreso {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
 
   @keyframes fade-up {
     from {

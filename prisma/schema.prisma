@@ -213,3 +213,23 @@ model SuscripcionPush {
 
   @@index([usuarioId])
 }
+
+// Fotos del slider de la portada de la Home (momentos de regalo en distintas
+// celebraciones). Se administran desde el panel.
+model Portada {
+  id         Int      @id @default(autoincrement())
+  // Etiqueta de la ocasión ("Cumpleaños", "Día de la Madre").
+  ocasion    String   @db.VarChar(40)
+  // Frase corta opcional ("Para que su día sea inolvidable").
+  frase      String?  @db.VarChar(120)
+  // Archivo WebP 1600×1000, en BRISABEL_UPLOADS_DIR/portadas.
+  imagen     String   @db.VarChar(120)
+  // Página a la que lleva el botón de la foto (ruta interna, ej. /catalogo/plata).
+  enlace     String?  @db.VarChar(200)
+  orden      Int      @default(0)
+  activa     Boolean  @default(true)
+  creado     DateTime @default(now())
+  modificado DateTime @updatedAt
+
+  @@index([activa, orden])
+}

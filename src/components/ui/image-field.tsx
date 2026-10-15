@@ -8,11 +8,13 @@ type ImageFieldProps = {
   alto: number;
   // Para qué se usa la imagen, se agrega a la ayuda.
   uso?: string;
+  // false: la imagen es obligatoria (no se ofrece "Quitar imagen").
+  quitable?: boolean;
 };
 
 // Campo de imagen para formularios del panel: muestra la actual y permite
 // reemplazarla (name="imagen") o quitarla (name="quitarImagen").
-export function ImageField({ actual, error, ancho, alto, uso }: ImageFieldProps) {
+export function ImageField({ actual, error, ancho, alto, uso, quitable = true }: ImageFieldProps) {
   const proporcion = { aspectRatio: `${ancho} / ${alto}` };
 
   return (
@@ -30,10 +32,12 @@ export function ImageField({ actual, error, ancho, alto, uso }: ImageFieldProps)
             unoptimized
             width={ancho}
           />
-          <label className="flex items-center gap-2 text-sm">
-            <input className="size-4 accent-accent" name="quitarImagen" type="checkbox" />
-            Quitar imagen
-          </label>
+          {quitable ? (
+            <label className="flex items-center gap-2 text-sm">
+              <input className="size-4 accent-accent" name="quitarImagen" type="checkbox" />
+              Quitar imagen
+            </label>
+          ) : null}
         </div>
       ) : null}
 

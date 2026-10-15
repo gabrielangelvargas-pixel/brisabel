@@ -8,7 +8,7 @@ import { getServerEnv } from "@/config/server-env";
 // Archivos subidos desde el panel, en una carpeta persistente fuera del
 // deploy. Se organizan por carpeta ("categorias", "productos"...).
 
-const storageFolders = ["categorias", "productos"] as const;
+const storageFolders = ["categorias", "productos", "portadas"] as const;
 
 export type StorageFolder = (typeof storageFolders)[number];
 

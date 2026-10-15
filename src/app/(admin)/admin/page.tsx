@@ -1,4 +1,4 @@
-import { ClipboardList, FolderTree, Package } from "lucide-react";
+import { ClipboardList, FolderTree, Images, Package } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -24,6 +24,12 @@ const secciones = [
     descripcion: "Cargá productos con su SKU, precios e imagen.",
     href: "/admin/productos",
     icon: Package,
+  },
+  {
+    titulo: "Portada",
+    descripcion: "Fotos del slider de la página de inicio.",
+    href: "/admin/portada",
+    icon: Images,
   },
 ];
 
