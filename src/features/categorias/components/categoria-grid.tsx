@@ -39,10 +39,11 @@ export function CategoriaGrid({ categorias, miniatura = false }: { categorias: C
               style={miniatura ? IMAGEN_PROPORCION : undefined}
             >
               {imagenUrl ? (
-                // Ya viene optimizada (WebP) desde el panel.
+                // Ya viene optimizada (WebP) desde el panel. La imagen es 1.91:1 y la
+                // tarjeta es más alta: se recorta desde el margen izquierdo.
                 <Image
                   alt=""
-                  className="object-cover transition duration-700 ease-out group-hover:scale-105"
+                  className="object-cover object-left transition duration-700 ease-out group-hover:scale-105"
                   fill
                   sizes={miniatura ? "(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw" : "(min-width: 1024px) 33vw, 50vw"}
                   src={imagenUrl}
