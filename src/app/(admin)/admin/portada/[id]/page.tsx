@@ -48,6 +48,7 @@ async function Formulario({ params }: Pick<PageProps<"/admin/portada/[id]">, "pa
         activa: portada.activa,
       }}
       imagenActual={portada.imagen}
+      imagenMovilActual={portada.imagenMovil}
       submitLabel="Guardar cambios"
     />
   );

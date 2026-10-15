@@ -40,6 +40,7 @@ export async function Hero() {
         ocasion: portada.ocasion,
         frase: portada.frase,
         src: portadaImagenUrl(portada.imagen),
+        srcMovil: portada.imagenMovil ? portadaImagenUrl(portada.imagenMovil) : null,
         enlace: portada.enlace,
       }))}
     />

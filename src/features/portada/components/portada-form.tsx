@@ -8,19 +8,26 @@ import { Field } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/form-alert";
 import { ImageField } from "@/components/ui/image-field";
 import type { PortadaFormState } from "@/features/portada/actions";
-import { PORTADA_ALTO, PORTADA_ANCHO, portadaImagenUrl } from "@/features/portada/imagen-size";
+import {
+  PORTADA_ALTO,
+  PORTADA_ANCHO,
+  PORTADA_MOVIL_ALTO,
+  PORTADA_MOVIL_ANCHO,
+  portadaImagenUrl,
+} from "@/features/portada/imagen-size";
 import type { PortadaFormValues } from "@/features/portada/schemas";
 
 type PortadaFormProps = {
   action: (state: PortadaFormState, formData: FormData) => Promise<PortadaFormState>;
   defaultValues: PortadaFormValues;
   imagenActual?: string;
+  imagenMovilActual?: string | null;
   submitLabel: string;
 };
 
 const initialState: PortadaFormState = {};
 
-export function PortadaForm({ action, defaultValues, imagenActual, submitLabel }: PortadaFormProps) {
+export function PortadaForm({ action, defaultValues, imagenActual, imagenMovilActual, submitLabel }: PortadaFormProps) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const errors = state.fieldErrors ?? {};
   // Tras un error se muestran los valores enviados; si no, los iniciales.
@@ -33,8 +40,19 @@ export function PortadaForm({ action, defaultValues, imagenActual, submitLabel }
         alto={PORTADA_ALTO}
         ancho={PORTADA_ANCHO}
         error={errors.imagen}
+        label="Foto horizontal (computadoras y tablets)"
         quitable={false}
-        uso="horizontal; en el celular se ve el centro, dejá ahí la escena principal"
+        uso="horizontal; si no cargás la vertical, en el celular se ve el centro"
+      />
+
+      <ImageField
+        actual={imagenMovilActual ? portadaImagenUrl(imagenMovilActual) : null}
+        alto={PORTADA_MOVIL_ALTO}
+        ancho={PORTADA_MOVIL_ANCHO}
+        error={errors.imagenMovil}
+        label="Foto vertical para celulares (opcional)"
+        name="imagenMovil"
+        uso="vertical, como una historia de Instagram"
       />
 
       <div className="grid gap-5 sm:grid-cols-[1fr_8rem]">

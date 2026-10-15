@@ -10,22 +10,39 @@ type ImageFieldProps = {
   uso?: string;
   // false: la imagen es obligatoria (no se ofrece "Quitar imagen").
   quitable?: boolean;
+  // Para más de una imagen en el mismo formulario.
+  label?: string;
+  name?: string;
 };
 
 // Campo de imagen para formularios del panel: muestra la actual y permite
-// reemplazarla (name="imagen") o quitarla (name="quitarImagen").
-export function ImageField({ actual, error, ancho, alto, uso, quitable = true }: ImageFieldProps) {
+// reemplazarla (name, por defecto "imagen") o quitarla ("quitar" + name con
+// mayúscula, por defecto "quitarImagen").
+export function ImageField({
+  actual,
+  error,
+  ancho,
+  alto,
+  uso,
+  quitable = true,
+  label = "Imagen",
+  name = "imagen",
+}: ImageFieldProps) {
   const proporcion = { aspectRatio: `${ancho} / ${alto}` };
+  const nombreQuitar = `quitar${name[0].toUpperCase()}${name.slice(1)}`;
+  const mensajeId = `${name}-message`;
+  // Las verticales se muestran más angostas.
+  const anchoVista = ancho >= alto ? "w-40" : "w-24";
 
   return (
     <fieldset className="grid gap-3">
-      <legend className="text-sm font-medium">Imagen</legend>
+      <legend className="text-sm font-medium">{label}</legend>
 
       {actual ? (
         <div className="flex flex-wrap items-end gap-4">
           <Image
-            alt="Imagen actual"
-            className="w-40 rounded-md border border-line object-cover"
+            alt={`${label} actual`}
+            className={`${anchoVista} rounded-md border border-line object-cover`}
             height={alto}
             src={actual}
             style={proporcion}
@@ -34,7 +51,7 @@ export function ImageField({ actual, error, ancho, alto, uso, quitable = true }:
           />
           {quitable ? (
             <label className="flex items-center gap-2 text-sm">
-              <input className="size-4 accent-accent" name="quitarImagen" type="checkbox" />
+              <input className="size-4 accent-accent" name={nombreQuitar} type="checkbox" />
               Quitar imagen
             </label>
           ) : null}
@@ -43,14 +60,14 @@ export function ImageField({ actual, error, ancho, alto, uso, quitable = true }:
 
       <input
         accept="image/jpeg,image/png,image/webp"
-        aria-describedby="imagen-message"
+        aria-describedby={mensajeId}
         aria-invalid={error ? true : undefined}
         className="block w-full text-sm file:mr-3 file:h-10 file:rounded-md file:border-0 file:bg-brand-soft file:px-4 file:text-sm file:font-semibold file:text-brand hover:file:bg-line"
-        id="imagen"
-        name="imagen"
+        id={name}
+        name={name}
         type="file"
       />
-      <p className={error ? "text-xs text-accent" : "text-xs text-muted"} id="imagen-message">
+      <p className={error ? "text-xs text-accent" : "text-xs text-muted"} id={mensajeId}>
         {error ??
           `${actual ? "Elegí un archivo solo si querés reemplazarla. " : ""}JPG, PNG o WebP, hasta 8 MB. Se recorta a ${ancho}×${alto}${uso ? ` (${uso})` : ""}.`}
       </p>

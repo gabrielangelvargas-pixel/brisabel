@@ -12,6 +12,8 @@ export type SlidePortada = {
   ocasion: string;
   frase: string | null;
   src: string | StaticImageData;
+  // Versión vertical para celulares (opcional).
+  srcMovil?: string | null;
   enlace: string | null;
 };
 
@@ -55,27 +57,52 @@ export function PortadaSlider({ slides }: { slides: SlidePortada[] }) {
       {slides.map((s, i) => (
         <div
           aria-hidden={i !== activo}
-          className={cn("absolute inset-0 -z-10 transition-opacity duration-1000", i === activo ? "opacity-100" : "opacity-0")}
+          className={cn(
+            "absolute inset-0 -z-10 transition-opacity duration-1000",
+            i === activo ? "opacity-100" : "opacity-0",
+          )}
           key={s.key}
         >
-          <Image
-            alt=""
-            className={cn("object-cover", i === activo && "motion-safe:animate-ken-burns")}
-            fill
-            loading={i === 0 ? "eager" : "lazy"}
-            fetchPriority={i === 0 ? "high" : "auto"}
-            placeholder={typeof s.src === "string" ? "empty" : "blur"}
-            sizes="100vw"
-            src={s.src}
-            style={i === activo ? pausa : undefined}
-            unoptimized={typeof s.src === "string"}
-          />
+          {s.srcMovil && typeof s.src === "string" ? (
+            // Con foto vertical: el navegador baja solo la que corresponde a la pantalla.
+            <picture>
+              <source media="(max-width: 639px)" srcSet={s.srcMovil} />
+              <img
+                alt=""
+                className={cn(
+                  "absolute inset-0 size-full object-cover",
+                  i === activo && "motion-safe:animate-ken-burns",
+                )}
+                decoding="async"
+                fetchPriority={i === 0 ? "high" : "auto"}
+                loading={i === 0 ? "eager" : "lazy"}
+                src={s.src}
+                style={i === activo ? pausa : undefined}
+              />
+            </picture>
+          ) : (
+            <Image
+              alt=""
+              className={cn("object-cover", i === activo && "motion-safe:animate-ken-burns")}
+              fill
+              loading={i === 0 ? "eager" : "lazy"}
+              fetchPriority={i === 0 ? "high" : "auto"}
+              placeholder={typeof s.src === "string" ? "empty" : "blur"}
+              sizes="100vw"
+              src={s.src}
+              style={i === activo ? pausa : undefined}
+              unoptimized={typeof s.src === "string"}
+            />
+          )}
         </div>
       ))}
 
       {/* Degradés para que el texto se lea sobre cualquier foto. */}
       <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-      <div aria-hidden className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-black/45 via-transparent to-transparent lg:block" />
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-black/45 via-transparent to-transparent lg:block"
+      />
 
       <div className="mx-auto flex h-full w-full max-w-7xl flex-col justify-end px-5 pb-8 sm:pb-12 lg:pb-16">
         <p

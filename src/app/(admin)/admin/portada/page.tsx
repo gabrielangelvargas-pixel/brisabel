@@ -1,4 +1,4 @@
-import { EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import { EyeOff, Pencil, Plus, Smartphone, Trash2 } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -94,6 +94,10 @@ async function Listado({ searchParams }: Pick<PageProps<"/admin/portada">, "sear
                   </p>
                   {portada.frase ? <p className="truncate text-sm text-muted">{portada.frase}</p> : null}
                   {portada.enlace ? <p className="truncate text-xs text-accent">{portada.enlace}</p> : null}
+                  <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
+                    <Smartphone className="size-3.5" />
+                    {portada.imagenMovil ? "Con foto vertical para celular" : "Sin foto vertical (el celular recorta)"}
+                  </p>
                 </div>
                 <Link
                   aria-label={`Editar ${portada.ocasion}`}

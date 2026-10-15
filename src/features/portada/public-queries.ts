@@ -14,6 +14,7 @@ export type PortadaPublica = {
   ocasion: string;
   frase: string | null;
   imagen: string;
+  imagenMovil: string | null;
   enlace: string | null;
 };
 
@@ -25,7 +26,7 @@ async function getPortadasCache(): Promise<PortadaPublica[]> {
   return getDb().portada.findMany({
     where: { activa: true },
     orderBy: [{ orden: "asc" }, { id: "asc" }],
-    select: { id: true, ocasion: true, frase: true, imagen: true, enlace: true },
+    select: { id: true, ocasion: true, frase: true, imagen: true, imagenMovil: true, enlace: true },
   });
 }
 
